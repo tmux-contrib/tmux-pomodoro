@@ -39,9 +39,10 @@ source "$_tmux_source_dir/tmux_core.sh"
 # Returns:
 #   0 on success
 main() {
-	local format
+	local icon
 	local color
 	local status
+	local format
 
 	# Check if openpomodoro-cli is installed
 	if ! command -v openpomodoro-cli >/dev/null 2>&1; then
@@ -49,8 +50,9 @@ main() {
 	fi
 
 	# Get configuration options
+	icon=""
 	color="$(_tmux_get_option "@pomodoro_color" "red")"
-	format="$(_tmux_get_option "@pomodoro_format" " %r")"
+	format="$(_tmux_get_option "@pomodoro_format" "$icon %r")"
 
 	# Get status from openpomodoro-cli
 	status=$(openpomodoro-cli status --format "$format" 2>/dev/null | xargs || true)
