@@ -31,11 +31,13 @@ Then press `prefix + I` to install the plugin.
 ### Manual Installation
 
 1. Clone this repository:
+
    ```bash
    git clone https://github.com/tmux-contrib/tmux-pomodoro ~/.tmux/plugins/tmux-pomodoro
    ```
 
 2. Add this line to your `~/.tmux.conf`:
+
    ```tmux
    run-shell ~/.tmux/plugins/tmux-pomodoro/main.tmux
    ```
@@ -58,6 +60,7 @@ set -g status-right "#{pomodoro_status} | %H:%M"
 ```
 
 When a Pomodoro is active, you'll see the time remaining in red:
+
 ```
 23:45 | 14:30
 ```
@@ -68,23 +71,22 @@ When no Pomodoro is running, it will show `00:00`.
 
 ### Options
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `@pomodoro_format` | `"%r"` | Format string passed to openpomodoro-cli |
-| `@pomodoro_color` | `"red"` | tmux color for the status text |
-| `@pomodoro_directory` | `~/.pomodoro` | Directory path for openpomodoro-cli data |
+| Option             | Default | Description                      |
+| ------------------ | ------- | -------------------------------- |
+| `@pomodoro_format` | `"%r"`  | Format string passed to pomodoro |
+| `@pomodoro_color`  | `"red"` | tmux color for the status text   |
 
 The format string can include any text and icons you want, along with these variables:
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `%r` | Time remaining (mm:ss) | `23:45` |
-| `%R` | Time remaining (minutes) | `23` |
-| `%!r` | Time remaining with ❗️ if done | `23:45` or `❗️00:00` |
-| `%c` | Completed Pomodoros today | `3` |
-| `%g` | Daily goal | `8` |
-| `%d` | Task description | `Write documentation` |
-| `%t` | Task tags | `writing,docs` |
+| Variable | Description                    | Example               |
+| -------- | ------------------------------ | --------------------- |
+| `%r`     | Time remaining (mm:ss)         | `23:45`               |
+| `%R`     | Time remaining (minutes)       | `23`                  |
+| `%!r`    | Time remaining with ❗️ if done | `23:45` or `❗️00:00`  |
+| `%c`     | Completed Pomodoros today      | `3`                   |
+| `%g`     | Daily goal                     | `8`                   |
+| `%d`     | Task description               | `Write documentation` |
+| `%t`     | Task tags                      | `writing,docs`        |
 
 ## Configuration Examples
 
@@ -159,18 +161,9 @@ Output: `⏱ 23:45 | 14:30` (in yellow)
 
 ### Available Colors
 
-tmux supports these color names: `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`, or color numbers like `colour0` through `colour255`.
-
-### Using Custom Directory
-
-By default, openpomodoro-cli stores data in `~/.pomodoro`. If you want to use a different location, specify a custom directory:
-
-```tmux
-set -g @pomodoro_directory "/path/to/custom/directory"
-set -g status-right "#{pomodoro_status} | %H:%M"
-```
-
-This passes `--directory /path/to/custom/directory` to openpomodoro-cli, allowing you to store Pomodoro data in a different location (useful for syncing across machines or project-specific timers).
+tmux supports these color names: `black`, `red`, `green`, `yellow`, `blue`,
+`magenta`, `cyan`, `white`, or color numbers like `colour0` through
+`colour255`.
 
 ### Complete Configuration Example
 
@@ -194,19 +187,22 @@ run '~/.tmux/plugins/tpm/tpm'
 
 ### Status bar shows nothing
 
-1. Check if openpomodoro-cli is installed:
+1. Check if pomodoro is installed:
+
    ```bash
-   which openpomodoro-cli
+   which pomodoro
    ```
 
-2. Verify openpomodoro-cli works:
+2. Verify pomodoro works:
+
    ```bash
-   openpomodoro-cli status
+   pomodoro status
    ```
 
 3. Check if you have an active Pomodoro:
+
    ```bash
-   openpomodoro-cli start "Test task"
+   pomodoro start "Test task"
    ```
 
 4. Reload tmux configuration:
@@ -243,7 +239,7 @@ chmod +x ~/.tmux/plugins/tmux-pomodoro/scripts/*.sh
 
 1. The plugin registers a `#{pomodoro_status}` format string that tmux will interpolate
 2. When tmux renders the status bar, it executes `scripts/tmux_pomodoro.sh`
-3. The script queries `openpomodoro-cli status --format "<your format>"`
+3. The script queries `pomodoro status --format "<your format>"`
 4. The output is displayed in your status bar with the configured color
 5. If no Pomodoro is active, it displays `00:00`
 6. If openpomodoro-cli is not installed, nothing is displayed

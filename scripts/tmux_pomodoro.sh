@@ -46,10 +46,9 @@ main() {
 	local color
 	local status
 	local format
-	local directory
 
-	# Check if openpomodoro-cli is installed
-	if ! command -v openpomodoro-cli >/dev/null 2>&1; then
+	# Check if pomodoro is installed
+	if ! command -v pomodoro >/dev/null 2>&1; then
 		return 0
 	fi
 
@@ -57,16 +56,13 @@ main() {
 	icon=""
 	color="$(_tmux_get_option "@pomodoro_color" "red")"
 	format="$(_tmux_get_option "@pomodoro_format" "$icon %r")"
-	directory="$(_tmux_get_option "@pomodoro_directory" "$HOME/.pomodoro")"
-	# Expand tilde to $HOME if path starts with ~/
-	directory="${directory/#\~/$HOME}"
 
 	# Get status from openpomodoro-cli
-	status=$(pomodoro status --directory "$directory" --format "$format" | xargs || true)
+	status=$(pomodoro status --format "$format" | xargs || true)
 
 	# If no active Pomodoro, replace format specifiers with default values
 	if [[ -z "$status" ]]; then
-		status="$icon 00:00"
+		status="$icon 0:00"
 		color="default"
 	fi
 
