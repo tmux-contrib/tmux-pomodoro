@@ -62,7 +62,7 @@ When a Pomodoro is active, you'll see the time remaining in red:
 23:45 | 14:30
 ```
 
-The output will be empty when no Pomodoro is running.
+When no Pomodoro is running, it will show `00:00`.
 
 ## Configuration
 
@@ -231,8 +231,9 @@ chmod +x ~/.tmux/plugins/tmux-pomodoro/scripts/*.sh
 1. The plugin registers a `#{pomodoro_status}` format string that tmux will interpolate
 2. When tmux renders the status bar, it executes `scripts/tmux_pomodoro.sh`
 3. The script queries `openpomodoro-cli status --format "<your format>"`
-4. The output is displayed directly in your status bar
-5. If openpomodoro-cli is not installed or no Pomodoro is active, nothing is displayed
+4. The output is displayed in your status bar with the configured color
+5. If no Pomodoro is active, it displays `00:00`
+6. If openpomodoro-cli is not installed, nothing is displayed
 
 ## Related Projects
 

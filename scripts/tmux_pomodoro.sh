@@ -55,10 +55,13 @@ main() {
 	# Get status from openpomodoro-cli
 	status=$(openpomodoro-cli status --format "$format" 2>/dev/null || true)
 
-	# Output with tmux color codes if status is not empty
-	if [[ -n "$status" ]]; then
-		echo "#[fg=$color]$status#[default]"
+	# If no active Pomodoro, show 00:00
+	if [[ -z "$status" ]]; then
+		status=" 00:00"
 	fi
+
+	# Output with tmux color codes
+	echo "#[fg=$color]$status#[default]"
 }
 
 main
