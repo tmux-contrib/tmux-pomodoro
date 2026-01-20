@@ -56,6 +56,8 @@ main() {
 	color="$(_tmux_get_option "@pomodoro_color" "red")"
 	format="$(_tmux_get_option "@pomodoro_format" "$icon %r")"
 	directory="$(_tmux_get_option "@pomodoro_directory" "$HOME/.pomodoro")"
+	# Expand tilde to $HOME if path starts with ~/
+	directory="${directory/#\~/$HOME}"
 
 	# Get status from openpomodoro-cli
 	status=$(openpomodoro-cli status --directory "$directory" --format "$format" 2>/dev/null | xargs || true)
