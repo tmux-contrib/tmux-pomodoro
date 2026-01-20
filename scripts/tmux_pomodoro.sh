@@ -43,6 +43,7 @@ source "$_tmux_source_dir/tmux_core.sh"
 #   0 on success
 main() {
 	local icon
+	local none
 	local color
 	local status
 	local format
@@ -57,12 +58,17 @@ main() {
 	color="$(_tmux_get_option "@pomodoro_color" "red")"
 	format="$(_tmux_get_option "@pomodoro_format" "$icon %r")"
 
+	none="$icon 0:00"
 	# Get status from openpomodoro-cli
 	status=$(pomodoro status --format "$format" | xargs || true)
 
 	# If no active Pomodoro, replace format specifiers with default values
 	if [[ -z "$status" ]]; then
-		status="$icon 0:00"
+		status="$none"
+	fi
+
+	if [[ "$status" == "$none" ]]; then
+		# No active Pomodoro
 		color="default"
 	fi
 
