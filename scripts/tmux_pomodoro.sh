@@ -53,7 +53,7 @@ main() {
 	format="$(_tmux_get_option "@pomodoro_format" " %r")"
 
 	# Get status from openpomodoro-cli
-	status=$(openpomodoro-cli status --format "$format" 2>/dev/null || true)
+	status=$(openpomodoro-cli status --format "$format" 2>/dev/null | xargs || true)
 
 	# If no active Pomodoro, show 00:00
 	if [[ -z "$status" ]]; then
