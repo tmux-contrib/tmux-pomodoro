@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+[ -z "$DEBUG" ] || set -x
+
 # Get the current Pomodoro status from openpomodoro-cli.
 #
 # Retrieves and displays the current Pomodoro timer status using
@@ -60,7 +62,7 @@ main() {
 	directory="${directory/#\~/$HOME}"
 
 	# Get status from openpomodoro-cli
-	status=$(openpomodoro-cli status --directory "$directory" --format "$format" 2>/dev/null | xargs || true)
+	status=$(pomodoro status --directory "$directory" --format "$format" | xargs || true)
 
 	# If no active Pomodoro, replace format specifiers with default values
 	if [[ -z "$status" ]]; then
