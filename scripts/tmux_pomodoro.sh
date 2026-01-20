@@ -6,8 +6,9 @@
 # a configurable format string with tmux color support.
 #
 # Configuration Options:
-#   @pomodoro_format - Format string for openpomodoro-cli (default: "%r")
-#   @pomodoro_color  - tmux color for the status (default: "red")
+#   @pomodoro_format    - Format string for openpomodoro-cli (default: "%r")
+#   @pomodoro_color     - tmux color for the status (default: "red")
+#   @pomodoro_directory - Directory path for openpomodoro-cli (default: "")
 #
 # Globals:
 #   None
@@ -43,6 +44,7 @@ main() {
 	local color
 	local status
 	local format
+	local directory
 
 	# Check if openpomodoro-cli is installed
 	if ! command -v openpomodoro-cli >/dev/null 2>&1; then
@@ -53,9 +55,10 @@ main() {
 	icon=""
 	color="$(_tmux_get_option "@pomodoro_color" "red")"
 	format="$(_tmux_get_option "@pomodoro_format" "$icon %r")"
+	directory="$(_tmux_get_option "@pomodoro_directory" "$HOME/.pomodoro")"
 
 	# Get status from openpomodoro-cli
-	status=$(openpomodoro-cli status --format "$format" 2>/dev/null | xargs || true)
+	status=$(openpomodoro-cli status --directory "$directory" --format "$format" 2>/dev/null | xargs || true)
 
 	# If no active Pomodoro, replace format specifiers with default values
 	if [[ -z "$status" ]]; then

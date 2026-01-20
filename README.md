@@ -72,6 +72,7 @@ When no Pomodoro is running, it will show `00:00`.
 |--------|---------|-------------|
 | `@pomodoro_format` | `"%r"` | Format string passed to openpomodoro-cli |
 | `@pomodoro_color` | `"red"` | tmux color for the status text |
+| `@pomodoro_directory` | `~/.pomodoro` | Directory path for openpomodoro-cli data |
 
 The format string can include any text and icons you want, along with these variables:
 
@@ -160,15 +161,27 @@ Output: `⏱ 23:45 | 14:30` (in yellow)
 
 tmux supports these color names: `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`, or color numbers like `colour0` through `colour255`.
 
+### Using Custom Directory
+
+By default, openpomodoro-cli stores data in `~/.pomodoro`. If you want to use a different location, specify a custom directory:
+
+```tmux
+set -g @pomodoro_directory "/path/to/custom/directory"
+set -g status-right "#{pomodoro_status} | %H:%M"
+```
+
+This passes `--directory /path/to/custom/directory` to openpomodoro-cli, allowing you to store Pomodoro data in a different location (useful for syncing across machines or project-specific timers).
+
 ### Complete Configuration Example
 
 ```tmux
 # Install plugin
 set -g @plugin 'tmux-contrib/tmux-pomodoro'
 
-# Optional: Customize format and color
+# Optional: Customize format, color, and directory
 set -g @pomodoro_format "🍅 %r %c/%g"
 set -g @pomodoro_color "red"
+# set -g @pomodoro_directory "/custom/path"  # Optional: defaults to ~/.pomodoro
 
 # Add to status bar
 set -g status-right "#{pomodoro_status} | %H:%M"
