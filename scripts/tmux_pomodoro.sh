@@ -57,7 +57,8 @@ main() {
 
 	# If no active Pomodoro, show 00:00
 	if [[ -z "$status" ]]; then
-		status=" 00:00"
+		status="$format 00:00"
+		color="default"
 	fi
 
 	# Output with tmux color codes
