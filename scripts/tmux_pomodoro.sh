@@ -57,9 +57,9 @@ main() {
 	# Get status from openpomodoro-cli
 	status=$(openpomodoro-cli status --format "$format" 2>/dev/null | xargs || true)
 
-	# If no active Pomodoro, show 00:00
+	# If no active Pomodoro, replace format specifiers with default values
 	if [[ -z "$status" ]]; then
-		status="$format 00:00"
+		status="$icon 00:00"
 		color="default"
 	fi
 
