@@ -117,3 +117,32 @@ pub struct StatusCommandArgs {
     #[arg(short, long)]
     pub format: Option<String>,
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn work_mode_displays_as_work() {
+        let mode = StartMode::Work;
+        assert_eq!(mode.to_string(), "work");
+    }
+
+    #[test]
+    fn break_mode_displays_as_break() {
+        let mode = StartMode::Break;
+        assert_eq!(mode.to_string(), "break");
+    }
+
+    #[test]
+    fn text_output_displays_as_text() {
+        let output = StatusOutput::Text;
+        assert_eq!(output.to_string(), "text");
+    }
+
+    #[test]
+    fn json_output_displays_as_json() {
+        let output = StatusOutput::Json;
+        assert_eq!(output.to_string(), "json");
+    }
+}
