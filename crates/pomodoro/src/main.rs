@@ -1,22 +1,23 @@
-mod cli;
+mod app;
 
+use app::cli::*;
+use app::cmd::*;
 use clap::Parser;
-use cli::Program;
 
 fn main() {
     let program = Program::parse();
 
     match program.command {
-        cli::ProgramCommand::Start(args) => {
-            let command = cli::StartCommand {};
+        ProgramCommand::Start(args) => {
+            let command = StartCommand {};
             command.execute(args);
         }
-        cli::ProgramCommand::Stop(args) => {
-            let command = cli::StopCommand {};
+        ProgramCommand::Stop(args) => {
+            let command = StopCommand {};
             command.execute(args);
         }
-        cli::ProgramCommand::Status(args) => {
-            let command = cli::StatusCommand {};
+        ProgramCommand::Status(args) => {
+            let command = StatusCommand {};
             command.execute(args);
         }
     }
