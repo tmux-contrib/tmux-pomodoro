@@ -1,4 +1,5 @@
 use crate::app::cli::*;
+use std::error::Error;
 use std::time::Duration;
 
 // StartCommand is responsible for starting a new pomodoro timer session.
@@ -6,7 +7,7 @@ pub struct StartCommand {}
 
 impl StartCommand {
     /// Execute the StartCommand with the provided arguments.
-    pub fn execute(&self, args: StartCommandArgs) {
+    pub fn execute(&self, args: StartCommandArgs) -> Result<(), Box<dyn Error>> {
         let duration = args.duration.unwrap_or_else(|| match args.mode {
             StartMode::Work => Duration::from_secs(25 * 60),
             StartMode::Break => Duration::from_secs(5 * 60),
@@ -17,6 +18,8 @@ impl StartCommand {
             args.mode,
             duration.as_secs()
         );
+
+        Ok(())
     }
 }
 
@@ -26,12 +29,14 @@ pub struct StopCommand {}
 
 impl StopCommand {
     /// Execute the StopCommand with the provided arguments.
-    pub fn execute(&self, args: StopCommandArgs) {
+    pub fn execute(&self, args: StopCommandArgs) -> Result<(), Box<dyn Error>> {
         if args.reset {
             println!("Stopping and resetting the pomodoro timer.");
         } else {
             println!("Stopping the pomodoro timer.");
         }
+
+        Ok(())
     }
 }
 
@@ -42,7 +47,9 @@ pub struct StatusCommand {}
 
 impl StatusCommand {
     /// Execute the StatusCommand with the provided arguments.
-    pub fn execute(&self, _args: StatusCommandArgs) {
+    pub fn execute(&self, _args: StatusCommandArgs) -> Result<(), Box<dyn Error>> {
         println!("Displaying the current pomodoro timer status.");
+
+        Ok(())
     }
 }

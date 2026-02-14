@@ -1,4 +1,3 @@
-use std::fmt::Display;
 use std::time::Duration;
 
 use clap::{Args, Parser, Subcommand, ValueEnum};
@@ -43,7 +42,7 @@ pub enum StartMode {
     Break,
 }
 
-impl Display for StartMode {
+impl std::fmt::Display for StartMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             StartMode::Work => write!(f, "work"),
@@ -94,7 +93,7 @@ pub enum StatusOutput {
     Json,
 }
 
-impl Display for StatusOutput {
+impl std::fmt::Display for StatusOutput {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             StatusOutput::Text => write!(f, "text"),
@@ -119,7 +118,7 @@ pub struct StatusCommandArgs {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
 
     #[test]
