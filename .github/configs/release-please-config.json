@@ -1,0 +1,8 @@
+{
+  "packages": {
+    "crates/pomodoro": {
+      "release-type": "rust",
+      "package-name": "pomodoro"
+    }
+  }
+}
