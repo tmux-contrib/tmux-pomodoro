@@ -12,6 +12,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let program = Program::parse();
     let program_config = ProgramConfig::load().unwrap_or_default();
 
+    // Create the hook runner unless --no-hooks was passed.
+    let runner = if program.no_hooks {
+        None
+    } else {
+        Some(Runner::try_new()?)
+    };
+
     // Open (or create) the database. --in-memory uses an ephemeral SQLite
     // database that vanishes when the process exits; useful for testing and
     // one-shot runs where persistence is not required.
@@ -23,12 +30,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Migrate the datbase prior to its usage.
     database.migrate()?;
 
-    // Create the hook runner unless --no-hooks was passed.
-    let runner = if program.no_hooks {
-        None
-    } else {
-        Some(Runner::try_new()?)
-    };
     // Wrap the entire command in a single transaction so that any partial
     // failure (e.g. session inserted but event write fails) rolls back cleanly.
     let tx = database.transaction()?;
