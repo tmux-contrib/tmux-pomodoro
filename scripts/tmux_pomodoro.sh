@@ -11,11 +11,16 @@
 #   focus + paused    → yellow + TICKING icon + remaining time
 #   focus + completed → green  + DONE icon
 #   focus + aborted   → red    + SQUASHED icon
-#   break (>=3000s)   → grey   + AWAY icon
-#   break (>=600s)    → blue   + LONG_PAUSE icon + remaining time
-#   break (<600s)     → blue   + SHORT_PAUSE icon + remaining time
-#   none              → (empty)
-#   (else/unknown)    → default + INTERNAL_INTERRUPTION icon
+#   break (>=600s) + running   → blue   + LONG_PAUSE icon + remaining time
+#   break (>=600s) + paused    → yellow + LONG_PAUSE icon + remaining time
+#   break (>=600s) + completed → green  + LONG_PAUSE icon
+#   break (>=600s) + aborted   → red    + LONG_PAUSE icon
+#   break (<600s)  + running (>=3000s elapsed) → grey + AWAY icon
+#   break (<600s)  + running   → blue   + SHORT_PAUSE icon + remaining time
+#   break (<600s)  + paused    → yellow + SHORT_PAUSE icon + remaining time
+#   break (<600s)  + completed → green  + SHORT_PAUSE icon
+#   break (<600s)  + aborted   → red    + SHORT_PAUSE icon
+#   none              → grey   + IDLE icon
 #
 # Arguments:
 #   None
@@ -27,13 +32,13 @@
 #   - pomodoro: Command-line Pomodoro timer
 
 # Pomicon symbols (https://github.com/gabrielelana/pomicons) via Unicode PUA codepoints.
-_POMODORO_ICON_DONE=$(printf '\xEE\x80\x81')                  # U+E001 POMODORO_DONE
-_POMODORO_ICON_TICKING=$(printf '\xEE\x80\x83')               # U+E003 POMODORO_TICKING
-_POMODORO_ICON_SQUASHED=$(printf '\xEE\x80\x84')              # U+E004 POMODORO_SQUASHED
-_POMODORO_ICON_SHORT_PAUSE=$(printf '\xEE\x80\x85')           # U+E005 SHORT_PAUSE
-_POMODORO_ICON_LONG_PAUSE=$(printf '\xEE\x80\x86')            # U+E006 LONG_PAUSE
-_POMODORO_ICON_AWAY=$(printf '\xEE\x80\x87')                  # U+E007 AWAY
-_POMODORO_ICON_INTERNAL_INTERRUPTION=$(printf '\xEE\x80\x89') # U+E009 INTERNAL_INTERRUPTION
+_POMODORO_ICON_DONE=$(printf '\xEE\x80\x81')        # U+E001 POMODORO_DONE
+_POMODORO_ICON_TICKING=$(printf '\xEE\x80\x83')     # U+E003 POMODORO_TICKING
+_POMODORO_ICON_SQUASHED=$(printf '\xEE\x80\x84')    # U+E004 POMODORO_SQUASHED
+_POMODORO_ICON_SHORT_PAUSE=$(printf '\xEE\x80\x85') # U+E005 SHORT_PAUSE
+_POMODORO_ICON_LONG_PAUSE=$(printf '\xEE\x80\x86')  # U+E006 LONG_PAUSE
+_POMODORO_ICON_AWAY=$(printf '\xEE\x80\x87')        # U+E007 AWAY
+_POMODORO_ICON_IDLE=$(printf '\xEF\x89\x92')        # U+F252 nf-fa-hourglass_half
 
 # MiniJinja template that embeds tmux color codes and pomicons based on session state and kind.
 _POMODORO_FORMAT="\
@@ -45,14 +50,26 @@ _POMODORO_FORMAT="\
 #[fg=green]${_POMODORO_ICON_DONE}#[default]\
 {%- elif kind == 'focus' and state == 'aborted' -%}\
 #[fg=red]${_POMODORO_ICON_SQUASHED}#[default]\
-{%- elif kind == 'break' and elapsed_secs >= 3000 -%}\
-#[fg=colour8]${_POMODORO_ICON_AWAY}#[default]\
-{%- elif kind == 'break' and planned_secs >= 600 -%}\
+{%- elif kind == 'break' and state == 'running' and planned_secs >= 600 -%}\
 #[fg=blue]${_POMODORO_ICON_LONG_PAUSE} {{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}#[default]\
-{%- elif kind == 'break' -%}\
+{%- elif kind == 'break' and state == 'paused' and planned_secs >= 600 -%}\
+#[fg=yellow]${_POMODORO_ICON_LONG_PAUSE} {{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}#[default]\
+{%- elif kind == 'break' and state == 'completed' and planned_secs >= 600 -%}\
+#[fg=green]${_POMODORO_ICON_LONG_PAUSE}#[default]\
+{%- elif kind == 'break' and state == 'aborted' and planned_secs >= 600 -%}\
+#[fg=red]${_POMODORO_ICON_LONG_PAUSE}#[default]\
+{%- elif kind == 'break' and state == 'running' and elapsed_secs >= 3000 -%}\
+#[fg=colour8]${_POMODORO_ICON_AWAY}#[default]\
+{%- elif kind == 'break' and state == 'running' -%}\
 #[fg=blue]${_POMODORO_ICON_SHORT_PAUSE} {{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}#[default]\
-{%- else -%}\
-#[fg=default]${_POMODORO_ICON_INTERNAL_INTERRUPTION}#[default]\
+{%- elif kind == 'break' and state == 'paused' -%}\
+#[fg=yellow]${_POMODORO_ICON_SHORT_PAUSE} {{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}#[default]\
+{%- elif kind == 'break' and state == 'completed' -%}\
+#[fg=green]${_POMODORO_ICON_SHORT_PAUSE}#[default]\
+{%- elif kind == 'break' and state == 'aborted' -%}\
+#[fg=red]${_POMODORO_ICON_SHORT_PAUSE}#[default]\
+{%- elif kind == 'none' -%}\
+#[fg=default]${_POMODORO_ICON_IDLE}#[default]\
 {%- endif -%}"
 
 # Main entry point.
