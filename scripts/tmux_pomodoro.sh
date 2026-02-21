@@ -38,7 +38,7 @@ _POMODORO_ICON_SQUASHED=$(printf '\xEE\x80\x84')    # U+E004 POMODORO_SQUASHED
 _POMODORO_ICON_SHORT_PAUSE=$(printf '\xEE\x80\x85') # U+E005 SHORT_PAUSE
 _POMODORO_ICON_LONG_PAUSE=$(printf '\xEE\x80\x86')  # U+E006 LONG_PAUSE
 _POMODORO_ICON_AWAY=$(printf '\xEE\x80\x87')        # U+E007 AWAY
-_POMODORO_ICON_IDLE=$(printf '\xEF\x89\x92')        # U+F252 nf-fa-hourglass_half
+_POMODORO_ICON_IDLE=$(printf '\xF3\xB1\xAB\xA1')    # U+F1AE1 nf-md-timer_play_outline
 
 # MiniJinja template that embeds tmux color codes and pomicons based on session state and kind.
 _POMODORO_FORMAT="\
@@ -75,7 +75,7 @@ _POMODORO_FORMAT="\
 # Main entry point.
 #
 # Globals:
-#   POMODORO_FORMAT - MiniJinja template with embedded tmux color codes
+#   _POMODORO_FORMAT - MiniJinja template with embedded tmux color codes
 # Arguments:
 #   None
 # Outputs:
