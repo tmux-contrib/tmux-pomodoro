@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.1.0...v0.1.1) (2026-02-22)
+
+
+### Bug Fixes
+
+* **tmux_pomodoro:** correct break condition precedence and cover all session states ([0bbfabb](https://github.com/tmux-contrib/tmux-pomodoro/commit/0bbfabb45762f3ab2972df7a8313da087b6f4407))
+* **tmux_pomodoro:** replace idle icon with nf-md-timer_play_outline ([496017b](https://github.com/tmux-contrib/tmux-pomodoro/commit/496017bb7b0b46eb94830eb74e947a9413920559))
+
 ## 0.1.0 (2026-02-21)
 
 
