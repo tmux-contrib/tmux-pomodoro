@@ -1,64 +1,80 @@
 #!/usr/bin/env bash
 
-# Get the current Pomodoro status from openpomodoro-cli.
+[ -z "$DEBUG" ] || set -x
+
+# Display the current Pomodoro timer status in the tmux status bar.
 #
-# Retrieves and displays the current Pomodoro timer status using
-# a configurable format string with tmux color support.
+# Queries the pomodoro CLI and outputs a tmux-formatted status string with
+# color-coding based on the session kind:
 #
-# Configuration Options:
-#   @pomodoro_format - Format string for openpomodoro-cli (default: "%r")
-#   @pomodoro_color  - tmux color for the status (default: "red")
+#   focus + running   → red    + TICKING icon + remaining time
+#   focus + paused    → yellow + TICKING icon + remaining time
+#   focus + completed → green  + DONE icon
+#   focus + aborted   → red    + SQUASHED icon
+#   break (>=3000s)   → grey   + AWAY icon
+#   break (>=600s)    → blue   + LONG_PAUSE icon + remaining time
+#   break (<600s)     → blue   + SHORT_PAUSE icon + remaining time
+#   none              → (empty)
+#   (else/unknown)    → default + INTERNAL_INTERRUPTION icon
 #
-# Globals:
-#   None
 # Arguments:
 #   None
 # Outputs:
-#   The Pomodoro status formatted according to @pomodoro_format with color
+#   tmux-formatted Pomodoro status string
 # Returns:
 #   0 on success
 # Dependencies:
-#   - openpomodoro-cli: Command-line Pomodoro timer
+#   - pomodoro: Command-line Pomodoro timer
 
-_tmux_source_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Pomicon symbols (https://github.com/gabrielelana/pomicons) via Unicode PUA codepoints.
+_POMODORO_ICON_DONE=$(printf '\xEE\x80\x81')                  # U+E001 POMODORO_DONE
+_POMODORO_ICON_TICKING=$(printf '\xEE\x80\x83')               # U+E003 POMODORO_TICKING
+_POMODORO_ICON_SQUASHED=$(printf '\xEE\x80\x84')              # U+E004 POMODORO_SQUASHED
+_POMODORO_ICON_SHORT_PAUSE=$(printf '\xEE\x80\x85')           # U+E005 SHORT_PAUSE
+_POMODORO_ICON_LONG_PAUSE=$(printf '\xEE\x80\x86')            # U+E006 LONG_PAUSE
+_POMODORO_ICON_AWAY=$(printf '\xEE\x80\x87')                  # U+E007 AWAY
+_POMODORO_ICON_INTERNAL_INTERRUPTION=$(printf '\xEE\x80\x89') # U+E009 INTERNAL_INTERRUPTION
 
-# shellcheck source=tmux_core.sh
-source "$_tmux_source_dir/tmux_core.sh"
+# MiniJinja template that embeds tmux color codes and pomicons based on session state and kind.
+_POMODORO_FORMAT="\
+{%- if kind == 'focus' and state == 'running' -%}\
+#[fg=red]${_POMODORO_ICON_TICKING} {{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}#[default]\
+{%- elif kind == 'focus' and state == 'paused' -%}\
+#[fg=yellow]${_POMODORO_ICON_TICKING} {{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}#[default]\
+{%- elif kind == 'focus' and state == 'completed' -%}\
+#[fg=green]${_POMODORO_ICON_DONE}#[default]\
+{%- elif kind == 'focus' and state == 'aborted' -%}\
+#[fg=red]${_POMODORO_ICON_SQUASHED}#[default]\
+{%- elif kind == 'break' and elapsed_secs >= 3000 -%}\
+#[fg=colour8]${_POMODORO_ICON_AWAY}#[default]\
+{%- elif kind == 'break' and planned_secs >= 600 -%}\
+#[fg=blue]${_POMODORO_ICON_LONG_PAUSE} {{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}#[default]\
+{%- elif kind == 'break' -%}\
+#[fg=blue]${_POMODORO_ICON_SHORT_PAUSE} {{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}#[default]\
+{%- else -%}\
+#[fg=default]${_POMODORO_ICON_INTERNAL_INTERRUPTION}#[default]\
+{%- endif -%}"
 
-# Main entry point for the Pomodoro status script.
-#
-# Checks if openpomodoro-cli is installed and retrieves the status
-# using the configured format string, wrapped in tmux color codes.
+# Main entry point.
 #
 # Globals:
-#   None
+#   POMODORO_FORMAT - MiniJinja template with embedded tmux color codes
 # Arguments:
 #   None
 # Outputs:
-#   Formatted Pomodoro status string (e.g., "#[fg=red]23:45#[default]")
+#   tmux-formatted status string (e.g., "#[fg=red]<icon> 20:45#[default]")
 # Returns:
 #   0 on success
 main() {
-	local format
-	local color
 	local status
 
-	# Check if openpomodoro-cli is installed
-	if ! command -v openpomodoro-cli >/dev/null 2>&1; then
+	if ! command -v pomodoro >/dev/null 2>&1; then
 		return 0
 	fi
 
-	# Get configuration options
-	color="$(_tmux_get_option "@pomodoro_color" "red")"
-	format="$(_tmux_get_option "@pomodoro_format" " %r")"
+	status=$(pomodoro status --format "$_POMODORO_FORMAT" 2>/dev/null || true)
 
-	# Get status from openpomodoro-cli
-	status=$(openpomodoro-cli status --format "$format" 2>/dev/null || true)
-
-	# Output with tmux color codes if status is not empty
-	if [[ -n "$status" ]]; then
-		echo "#[fg=$color]$status#[default]"
-	fi
+	[[ -n "$status" ]] && echo "$status"
 }
 
 main

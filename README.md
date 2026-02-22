@@ -1,19 +1,20 @@
 # tmux-pomodoro
 
-A tmux plugin that integrates [openpomodoro-cli](https://github.com/open-pomodoro/openpomodoro-cli) with tmux status bar, displaying your Pomodoro timer status with customizable icons and formats.
+A tmux plugin that integrates with the **pomodoro** CLI to display your
+Pomodoro timer status in the tmux status bar with automatic color-coding based
+on session state and type.
 
 ## Prerequisites
 
-- [openpomodoro-cli](https://github.com/open-pomodoro/openpomodoro-cli) - Command-line Pomodoro timer
+- [pomodoro](https://github.com/tmux-contrib/tmux-pomodoro) — the Pomodoro
+  timer CLI built in this repository
 
-### Installing openpomodoro-cli
+### Installing pomodoro
+
+Build and install the CLI from source using Cargo:
 
 ```bash
-# macOS with Homebrew
-brew install open-pomodoro/tap/openpomodoro-cli
-
-# Or download from releases
-# https://github.com/open-pomodoro/openpomodoro-cli/releases
+cargo install --path crates/pomodoro
 ```
 
 ## Installation
@@ -31,190 +32,129 @@ Then press `prefix + I` to install the plugin.
 ### Manual Installation
 
 1. Clone this repository:
+
    ```bash
    git clone https://github.com/tmux-contrib/tmux-pomodoro ~/.tmux/plugins/tmux-pomodoro
    ```
 
 2. Add this line to your `~/.tmux.conf`:
+
    ```tmux
    run-shell ~/.tmux/plugins/tmux-pomodoro/main.tmux
    ```
 
 3. Reload tmux configuration:
+
    ```bash
    tmux source-file ~/.tmux.conf
    ```
 
 ## Usage
 
-The plugin provides a `#{pomodoro_status}` format string that can be used in your tmux status bar configuration.
-
-### Basic Setup
-
-Add `#{pomodoro_status}` to your `status-right` or `status-left` option:
+Add `#{pomodoro_status}` to your `status-right` or `status-left`:
 
 ```tmux
 set -g status-right "#{pomodoro_status} | %H:%M"
 ```
 
-When a Pomodoro is active, you'll see the time remaining in red:
-```
-23:45 | 14:30
-```
+The plugin color-codes the remaining time automatically based on the current
+session state and kind:
 
-The output will be empty when no Pomodoro is running.
+| State | Kind  | Color   | Example output |
+| ----- | ----- | ------- | -------------- |
+| any   | focus | red     | ` 20:45`      |
+| any   | break | blue    | ` 05:00`      |
+| none  | none  | default | ` 00:00`      |
 
-## Configuration
+## CLI Commands
 
-### Options
+Control the timer directly from your terminal:
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `@pomodoro_format` | `"%r"` | Format string passed to openpomodoro-cli |
-| `@pomodoro_color` | `"red"` | tmux color for the status text |
+```bash
+# Start a 25-minute focus session (default)
+pomodoro start
 
-The format string can include any text and icons you want, along with these variables:
+# Start a 5-minute break session
+pomodoro start --mode break
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `%r` | Time remaining (mm:ss) | `23:45` |
-| `%R` | Time remaining (minutes) | `23` |
-| `%!r` | Time remaining with ❗️ if done | `23:45` or `❗️00:00` |
-| `%c` | Completed Pomodoros today | `3` |
-| `%g` | Daily goal | `8` |
-| `%d` | Task description | `Write documentation` |
-| `%t` | Task tags | `writing,docs` |
+# Start a focus session with a custom duration
+pomodoro start --mode focus --duration 45m
 
-## Configuration Examples
+# Pause a running session
+pomodoro stop
 
-### Default
+# Abort (reset) the current session
+pomodoro stop --reset
 
-The default format shows just the time remaining in red:
+# Display current status (text format)
+pomodoro status
 
-```tmux
-# This is the default - you don't need to set it
-set -g @pomodoro_format "%r"
-set -g @pomodoro_color "red"
-set -g status-right "#{pomodoro_status} | %H:%M"
+# Display current status as JSON
+pomodoro status --output json
+
+# Display with a custom MiniJinja template
+pomodoro status --format "{{ kind }} | {{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}"
 ```
 
-Output: `23:45 | 14:30` (in red)
+### Template Variables
 
-### With Icon and Progress
+The `--format` flag accepts a [MiniJinja](https://docs.rs/minijinja) template. The following variables are available:
 
-Add a tomato icon and show progress toward daily goal:
+| Variable         | Type    | Description                                              | Example                                             |
+| ---------------- | ------- | -------------------------------------------------------- | --------------------------------------------------- |
+| `kind`           | string  | Session type                                             | `focus`, `break`, `none`                             |
+| `state`          | string  | Current lifecycle state                                  | `running`, `paused`, `completed`, `aborted`, `none` |
+| `planned_secs`   | integer | Planned session duration in seconds                      | `1500`                                              |
+| `elapsed_secs`   | integer | Total elapsed time in seconds                            | `300`                                               |
+| `remaining_secs` | integer | Time remaining in seconds (clamped to zero when expired) | `1200`                                              |
 
-```tmux
-set -g @pomodoro_format "🍅 %r %c/%g"
-set -g status-right "#{pomodoro_status} | %H:%M"
+Time formatting with MiniJinja's `format` filter:
+
 ```
-
-Output: `🍅 23:45 3/8 | 14:30` (in red)
-
-### With Alert Indicator
-
-Use `%!r` to show an alert emoji when time is up:
-
-```tmux
-set -g @pomodoro_format "🍅 %!r %c/%g"
-set -g status-right "#{pomodoro_status} | %H:%M"
-```
-
-Output: `🍅 23:45 3/8 | 14:30` or `🍅 ❗️00:00 4/8 | 14:30`
-
-### Detailed
-
-Show task description:
-
-```tmux
-set -g @pomodoro_format "🍅 %r [%d]"
-set -g status-right "#{pomodoro_status} | %H:%M"
-```
-
-Output: `🍅 23:45 [Write documentation] | 14:30`
-
-### ASCII-only
-
-For terminals without emoji support:
-
-```tmux
-set -g @pomodoro_format "> %r %c/%g"
-set -g status-right "#{pomodoro_status} | %H:%M"
-```
-
-Output: `> 23:45 3/8 | 14:30`
-
-### Custom Icons and Color
-
-Use your preferred icons and color:
-
-```tmux
-set -g @pomodoro_format "⏱ %r"
-set -g @pomodoro_color "yellow"
-set -g status-right "#{pomodoro_status} | %H:%M"
-```
-
-Output: `⏱ 23:45 | 14:30` (in yellow)
-
-### Available Colors
-
-tmux supports these color names: `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`, or color numbers like `colour0` through `colour255`.
-
-### Complete Configuration Example
-
-```tmux
-# Install plugin
-set -g @plugin 'tmux-contrib/tmux-pomodoro'
-
-# Optional: Customize format and color
-set -g @pomodoro_format "🍅 %r %c/%g"
-set -g @pomodoro_color "red"
-
-# Add to status bar
-set -g status-right "#{pomodoro_status} | %H:%M"
-
-# Initialize TPM (keep this at the very bottom)
-run '~/.tmux/plugins/tpm/tpm'
+{{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}
 ```
 
 ## Troubleshooting
 
 ### Status bar shows nothing
 
-1. Check if openpomodoro-cli is installed:
+1. Check if pomodoro is installed:
+
    ```bash
-   which openpomodoro-cli
+   which pomodoro
    ```
 
-2. Verify openpomodoro-cli works:
+2. Verify pomodoro works:
+
    ```bash
-   openpomodoro-cli status
+   pomodoro status
    ```
 
-3. Check if you have an active Pomodoro:
+3. Start a session to test:
+
    ```bash
-   openpomodoro-cli start "Test task"
+   pomodoro start
    ```
 
 4. Reload tmux configuration:
+
    ```bash
    tmux source-file ~/.tmux.conf
    ```
 
 ### Icons not displaying
 
-Your terminal may not support emoji. Use ASCII characters in your format instead:
-
-```tmux
-set -g @pomodoro_format "> %r %c/%g"
-```
+Your terminal may not support the Nerd Font icons or emoji used in the format
+template. Ensure you have a [Nerd Font](https://www.nerdfonts.com/) installed
+and configured in your terminal emulator.
 
 ### Status not updating
 
-tmux status bars refresh based on the `status-interval` option. To make the Pomodoro status update more frequently:
+tmux status bars refresh based on the `status-interval` option. For
+second-level accuracy:
 
 ```tmux
-set -g status-interval 1  # Update every second
+set -g status-interval 1
 ```
 
 ### Permission denied errors
@@ -230,15 +170,18 @@ chmod +x ~/.tmux/plugins/tmux-pomodoro/scripts/*.sh
 
 1. The plugin registers a `#{pomodoro_status}` format string that tmux will interpolate
 2. When tmux renders the status bar, it executes `scripts/tmux_pomodoro.sh`
-3. The script queries `openpomodoro-cli status --format "<your format>"`
-4. The output is displayed directly in your status bar
-5. If openpomodoro-cli is not installed or no Pomodoro is active, nothing is displayed
+3. The script queries `pomodoro status --format "<template>"` where the
+   template embeds tmux color codes based on `state` and `kind`
+4. The colored output is written directly to the status bar
+5. If no Pomodoro is active (`state` is `none`), nothing is displayed
+6. If the pomodoro CLI is not installed, nothing is displayed
 
 ## Related Projects
 
-- [openpomodoro-cli](https://github.com/open-pomodoro/openpomodoro-cli) - The underlying Pomodoro timer
-- [tmux-keyboard](https://github.com/tmux-contrib/tmux-keyboard) - Display keyboard layout in tmux
-- [tmux-flow](https://github.com/tmux-contrib/tmux-flow) - Display Flow app status in tmux
+- [tmux-keyboard](https://github.com/tmux-contrib/tmux-keyboard) — Display
+  keyboard layout in tmux
+- [tmux-flow](https://github.com/tmux-contrib/tmux-flow) — Display Flow app
+  status in tmux
 
 ## License
 
