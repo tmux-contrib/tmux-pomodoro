@@ -2,10 +2,10 @@ use crate::state::model::*;
 use uuid::Uuid;
 
 use anyhow::{Context, Result};
-use lazy_static::lazy_static;
 use regex::Regex;
 use rusqlite::{named_params, Connection, Transaction, TransactionBehavior};
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
 /// SQL schema for the database, embedded at compile time from `schema.sql`.
 const DATABASE_SCHEMA: &str = include_str!("schema.sql");
@@ -16,22 +16,20 @@ const DATABASE_SCHEMA: &str = include_str!("schema.sql");
 /// the source code, making it easier to manage and update the queries as needed.
 const DATABASE_QUERY: &str = include_str!("query.sql");
 
-lazy_static! {
-    /// DATABASE_QUERY_REGEX is a regular expression that is used to parse the SQL queries.
-    static ref DATABASE_QUERY_REGEX: Regex =
-        Regex::new(r"(?s)--\s*name:\s*([^\n]+)\n(.*?)\n--").expect("Invalid regex");
+/// DATABASE_QUERY_REGEX is a regular expression that is used to parse the SQL queries.
+static DATABASE_QUERY_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?s)--\s*name:\s*([^\n]+)\n(.*?)\n--").expect("Invalid regex"));
 
-    /// Map of query name → SQL text, parsed from the embedded `query.sql` file at startup.
-    static ref DATABASE_QUERY_MAP: HashMap<String, String> = {
-        let mut queries = HashMap::new();
-        for captures in DATABASE_QUERY_REGEX.captures_iter(DATABASE_QUERY) {
-            let name = captures[1].trim().to_string();
-            let query = captures[2].trim().to_string();
-            queries.insert(name, query);
-        }
-        queries
-    };
-}
+/// Map of query name → SQL text, parsed from the embedded `query.sql` file at startup.
+static DATABASE_QUERY_MAP: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
+    let mut queries = HashMap::new();
+    for captures in DATABASE_QUERY_REGEX.captures_iter(DATABASE_QUERY) {
+        let name = captures[1].trim().to_string();
+        let query = captures[2].trim().to_string();
+        queries.insert(name, query);
+    }
+    queries
+});
 
 /// Database manages the SQLite connection lifecycle: opening, migrating, and
 /// vending [`Querier`] handles for executing queries.
