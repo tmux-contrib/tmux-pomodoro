@@ -26,6 +26,7 @@ jobs:
         id: release
         with:
           config-file: .github/configs/release-please-config.json
+          manifest-file: .github/configs/release-please-manifest.json
 
   build:
     needs: release-please
