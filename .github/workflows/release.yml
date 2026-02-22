@@ -1,11 +1,31 @@
 name: release
-
 on:
-  release:
-    types: [published]
-
+  push:
+    branches: [main]
+permissions:
+  contents: write
+  pull-requests: write
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --manifest-path crates/pomodoro/Cargo.toml
+  release-please:
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs['crates/pomodoro--release_created'] }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: .github/settings/release-please-config.json
+          manifest-file: .github/settings/release-please-manifest.json
   build:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
     strategy:
       matrix:
         include:
@@ -15,10 +35,9 @@ jobs:
             os: macos-latest
           - target: x86_64-apple-darwin
             os: macos-latest
-
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}

@@ -214,7 +214,10 @@ mod tests {
         };
         runner.execute(&args)?;
 
-        assert!(wait_for_file(&path), "stop hook was not invoked for paused event");
+        assert!(
+            wait_for_file(&path),
+            "stop hook was not invoked for paused event"
+        );
         Ok(())
     }
 
@@ -231,7 +234,10 @@ mod tests {
         };
         runner.execute(&args)?;
 
-        assert!(wait_for_file(&path), "stop hook was not invoked for aborted event");
+        assert!(
+            wait_for_file(&path),
+            "stop hook was not invoked for aborted event"
+        );
         Ok(())
     }
 

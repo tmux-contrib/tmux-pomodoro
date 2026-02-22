@@ -6,7 +6,7 @@ on session state and type.
 
 ## Prerequisites
 
-- [pomodoro](https://github.com/tmux-contrib/tmux-pomodoro) — the Pomodoro
+- [pomodoro](/crates/pomodoro/README.md) — the Pomodoro
   timer CLI built in this repository
 
 ### Installing pomodoro
@@ -102,7 +102,7 @@ The `--format` flag accepts a [MiniJinja](https://docs.rs/minijinja) template. T
 
 | Variable         | Type    | Description                                              | Example                                             |
 | ---------------- | ------- | -------------------------------------------------------- | --------------------------------------------------- |
-| `kind`           | string  | Session type                                             | `focus`, `break`, `none`                             |
+| `kind`           | string  | Session type                                             | `focus`, `break`, `none`                            |
 | `state`          | string  | Current lifecycle state                                  | `running`, `paused`, `completed`, `aborted`, `none` |
 | `planned_secs`   | integer | Planned session duration in seconds                      | `1500`                                              |
 | `elapsed_secs`   | integer | Total elapsed time in seconds                            | `300`                                               |
