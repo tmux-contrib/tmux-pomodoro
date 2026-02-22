@@ -85,7 +85,8 @@ impl<'q> StartCommand<'q> {
                     session: session.clone(),
                     session_event: session_event.clone(),
                 };
-                // execute the hook
+                // Hooks are non-fatal — ignore errors
+                // so a broken hook never kills the session.
                 runner.execute(&args).ok();
             }
         }
@@ -167,7 +168,8 @@ impl<'q> StopCommand<'q> {
                     session: session.clone(),
                     session_event: session_event.clone(),
                 };
-                // execute the hook
+                // Hooks are non-fatal — ignore errors
+                // so a broken hook never kills the session.
                 runner.execute(&args).ok();
             }
         }
@@ -323,7 +325,8 @@ impl<'q> StatusCommand<'q> {
                             session: session.clone(),
                             session_event: session_event.clone(),
                         };
-                        // execute the hook
+                        // Hooks are non-fatal — ignore errors
+                        // so a broken hook never kills the session.
                         runner.execute(&args).ok();
                     }
                 }
