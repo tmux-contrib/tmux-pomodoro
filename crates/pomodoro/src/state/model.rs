@@ -231,40 +231,6 @@ impl FromRow for SessionEvent {
     }
 }
 
-fn serialize_duration_as_secs<S>(d: &Duration, s: S) -> std::result::Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    s.serialize_i64(d.num_seconds())
-}
-
-fn deserialize_duration_from_secs<'de, D>(d: D) -> std::result::Result<Duration, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    let secs = i64::deserialize(d)?;
-    Ok(Duration::seconds(secs))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn session_kind_try_from_unknown_returns_error() {
-        let result = SessionKind::try_from("unknown");
-        assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "unknown session kind: unknown");
-    }
-
-    #[test]
-    fn session_event_kind_try_from_unknown_returns_error() {
-        let result = SessionEventKind::try_from("unknown");
-        assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "unknown session event kind: unknown");
-    }
-}
-
 impl SessionEvent {
     /// Creates a [`SessionEventKind::Started`] event for the given session.
     ///
@@ -318,5 +284,39 @@ impl SessionEvent {
             kind: SessionEventKind::Completed,
             ..Self::default()
         }
+    }
+}
+
+fn serialize_duration_as_secs<S>(d: &Duration, s: S) -> std::result::Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    s.serialize_i64(d.num_seconds())
+}
+
+fn deserialize_duration_from_secs<'de, D>(d: D) -> std::result::Result<Duration, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let secs = i64::deserialize(d)?;
+    Ok(Duration::seconds(secs))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn session_kind_try_from_unknown_returns_error() {
+        let result = SessionKind::try_from("unknown");
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "unknown session kind: unknown");
+    }
+
+    #[test]
+    fn session_event_kind_try_from_unknown_returns_error() {
+        let result = SessionEventKind::try_from("unknown");
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "unknown session event kind: unknown");
     }
 }
