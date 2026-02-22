@@ -6,23 +6,33 @@ use std::collections::HashMap;
 use std::sync::LazyLock;
 use uuid::Uuid;
 
-/// SQL schema for the database, embedded at compile time from `schema.sql`.
+/// DATABASE_SCHEMA for the database, embedded at compile time from `schema.sql`.
 const DATABASE_SCHEMA: &str = include_str!("schema.sql");
 
-/// DATABASE_QUERY represents the SQL query used to retrieve data from the database. It is included
-/// at compile time from the "query.sql" file, which contains the SQL commands for querying the
-/// database. This allows the application to execute predefined queries without hardcoding them in
-/// the source code, making it easier to manage and update the queries as needed.
-const DATABASE_QUERY: &str = include_str!("query.sql");
+/// Named SQL queries parsed from the embedded `query.sql` file.
+///
+/// Populated once on first access. Each query in `query.sql` is delimited by
+/// a `-- name: <key>` header and a trailing `--` sentinel, for example:
+///
+/// ```sql
+/// -- name: get_session
+/// SELECT * FROM sessions WHERE session_id = :session_id
+/// --
+/// ```
+///
+/// The map key is the trimmed name string (e.g. `"get_session"`).
+/// Look up a query with `DATABASE_QUERY.get("query_name")`.
+static DATABASE_QUERY: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
+    // Matches blocks of the form:
+    //   -- name: <name>\n<sql body>\n--
+    // Capture 1 = name, Capture 2 = SQL body (multiline via `(?s)`).
+    let regexp = Regex::new(r"(?s)--\s*name:\s*([^\n]+)\n(.*?)\n--").expect("Invalid regex");
+    // DATABASE_QUERY_RAW file.
+    const DATABASE_QUERY_RAW: &str = include_str!("query.sql");
 
-/// DATABASE_QUERY_REGEX is a regular expression that is used to parse the SQL queries.
-static DATABASE_QUERY_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"(?s)--\s*name:\s*([^\n]+)\n(.*?)\n--").expect("Invalid regex"));
-
-/// Map of query name → SQL text, parsed from the embedded `query.sql` file at startup.
-static DATABASE_QUERY_MAP: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
     let mut queries = HashMap::new();
-    for captures in DATABASE_QUERY_REGEX.captures_iter(DATABASE_QUERY) {
+    // Load the SQL queries into a hash map.
+    for captures in regexp.captures_iter(DATABASE_QUERY_RAW) {
         let name = captures[1].trim().to_string();
         let query = captures[2].trim().to_string();
         queries.insert(name, query);
@@ -114,7 +124,7 @@ impl<'q> Querier<'q> {
 
     /// Insert a new session row and return the persisted [`Session`].
     pub fn insert_session(&self, args: &InsertSessionArgs) -> Result<Session> {
-        let query = DATABASE_QUERY_MAP
+        let query = DATABASE_QUERY
             .get("insert_session")
             .context("Failed to get query")?;
 
@@ -140,7 +150,7 @@ impl<'q> Querier<'q> {
 
     /// Retrieve a single [`Session`] by its UUID, returning an error if not found.
     pub fn get_session_by_id(&self, args: &GetSessionByIdArgs) -> Result<Session> {
-        let query = DATABASE_QUERY_MAP
+        let query = DATABASE_QUERY
             .get("get_session")
             .context("Failed to get query")?;
 
@@ -163,7 +173,7 @@ impl<'q> Querier<'q> {
 
     /// Retrieve a paginated list of sessions ordered by `session_id DESC` (newest first).
     pub fn list_sessions(&self, args: &ListSessionsArgs) -> Result<Vec<Session>> {
-        let query = DATABASE_QUERY_MAP
+        let query = DATABASE_QUERY
             .get("list_sessions")
             .context("Failed to get query")?;
 
@@ -193,7 +203,7 @@ impl<'q> Querier<'q> {
 
     /// Insert a new session event row and return the persisted [`SessionEvent`].
     pub fn insert_session_event(&self, args: &InsertSessionEventArgs) -> Result<SessionEvent> {
-        let query = DATABASE_QUERY_MAP
+        let query = DATABASE_QUERY
             .get("insert_session_event")
             .context("Failed to get query")?;
 
@@ -220,7 +230,7 @@ impl<'q> Querier<'q> {
     /// Retrieve a single [`SessionEvent`] by its UUID, returning an error if not found.
     #[cfg(test)]
     pub fn get_session_event_by_id(&self, args: &GetSessionEventByIdArgs) -> Result<SessionEvent> {
-        let query = DATABASE_QUERY_MAP
+        let query = DATABASE_QUERY
             .get("get_session_event")
             .context("Failed to get query")?;
 
@@ -243,7 +253,7 @@ impl<'q> Querier<'q> {
 
     /// Retrieve a paginated list of session events ordered by `session_event_id DESC` (newest first).
     pub fn list_session_events(&self, args: &ListSessionEventsArgs) -> Result<Vec<SessionEvent>> {
-        let query = DATABASE_QUERY_MAP
+        let query = DATABASE_QUERY
             .get("list_session_events")
             .context("Failed to get query")?;
 
