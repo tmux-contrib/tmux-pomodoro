@@ -68,7 +68,7 @@ session state and kind:
 
 ## Keybindings
 
-Press `prefix + P` to enter the pomodoro key table, then:
+Press `prefix + p` to enter the pomodoro key table, then:
 
 | Key | Action                                      |
 |-----|---------------------------------------------|
@@ -82,11 +82,38 @@ The smart toggle (`f`) checks the current state:
 
 ### Customizing the chord prefix
 
-The `P` key is configurable. To use a different key, set `@pomodoro-key` in
+The `p` key is configurable. To use a different key, set `@pomodoro-key` in
 your `~/.tmux.conf` **before** the plugin loads:
 
 ```tmux
-set -g @pomodoro-key "p"   # use prefix+p instead
+set -g @pomodoro-key "P"   # use prefix+P instead
+```
+
+> **Note:** tmux binds `prefix + p` to `previous-window` by default. This
+> plugin overwrites that binding. To keep previous-window accessible, rebind it
+> before loading the plugin:
+>
+> ```tmux
+> bind-key N previous-window
+> ```
+
+### Customizing sub-keys
+
+The three sub-keys are individually configurable via `@pomodoro-key-focus`,
+`@pomodoro-key-break`, and `@pomodoro-key-stop`:
+
+```tmux
+set -g @pomodoro-key-focus "f"   # default
+set -g @pomodoro-key-break "b"   # default
+set -g @pomodoro-key-stop  "s"   # default
+```
+
+For example, to use Ctrl-key variants instead:
+
+```tmux
+set -g @pomodoro-key-focus "C-f"
+set -g @pomodoro-key-break "C-b"
+set -g @pomodoro-key-stop  "C-s"
 ```
 
 ### Disabling notifications
