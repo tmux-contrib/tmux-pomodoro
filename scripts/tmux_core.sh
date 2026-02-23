@@ -41,6 +41,46 @@ _tmux_set_option() {
 	tmux set-option -gq "$option" "$value"
 }
 
+# Bind a key in a tmux key table to a shell command.
+#
+# Registers a tmux key binding in the specified key table that runs the
+# specified shell command via run-shell when the key is pressed.
+#
+# Globals:
+#   None
+# Arguments:
+#   $1 - Key table name (e.g., "prefix", "pomodoro")
+#   $2 - The key to bind (e.g., "f", "b", "s")
+#   $3 - The shell command to run when the key is pressed
+# Returns:
+#   0 on success, non-zero on failure
+_tmux_bind_key() {
+	local table="$1"
+	local key="$2"
+	local command="$3"
+	tmux bind-key -T "$table" "$key" run-shell "$command"
+}
+
+# Bind a key in a tmux key table to switch into another key table.
+#
+# Registers a tmux key binding that, when pressed, switches the client into
+# the specified target key table (chord entry point).
+#
+# Globals:
+#   None
+# Arguments:
+#   $1 - Source key table name (e.g., "prefix")
+#   $2 - The key to bind
+#   $3 - The target key table to switch into
+# Returns:
+#   0 on success, non-zero on failure
+_tmux_bind_switch() {
+	local table="$1"
+	local key="$2"
+	local target_table="$3"
+	tmux bind-key -T "$table" "$key" switch-client -T "$target_table"
+}
+
 # Interpolate a pattern in content with a value.
 #
 # Replaces a pattern in the given content string with the specified value.

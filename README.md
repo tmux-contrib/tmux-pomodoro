@@ -66,6 +66,29 @@ session state and kind:
 | any   | break | blue    | ` 05:00`      |
 | none  | none  | default | ` 00:00`      |
 
+## Keybindings
+
+Press `prefix + P` to enter the pomodoro key table, then:
+
+| Key | Action                                      |
+|-----|---------------------------------------------|
+| `f` | Smart toggle: start focus / pause / resume  |
+| `b` | Start a break session                       |
+| `s` | Stop and reset the current session          |
+
+The smart toggle (`f`) checks the current state:
+- **running** → pauses the session (`pomodoro stop`)
+- **anything else** → starts/resumes (`pomodoro start`)
+
+### Customizing the chord prefix
+
+The `P` key is configurable. To use a different key, set `@pomodoro-key` in
+your `~/.tmux.conf` **before** the plugin loads:
+
+```tmux
+set -g @pomodoro-key "p"   # use prefix+p instead
+```
+
 ## CLI Commands
 
 Control the timer directly from your terminal:

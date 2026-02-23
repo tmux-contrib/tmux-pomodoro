@@ -43,10 +43,36 @@ _tmux_update_option() {
 	_tmux_set_option "$option" "$new_option_value"
 }
 
+# Register tmux keybindings for Pomodoro control.
+#
+# Binds a configurable chord prefix key (default: p) in the prefix table that
+# switches into the "pomodoro" key table, then registers sub-keys f/b/s in
+# that table for focus toggle, break, and stop/reset.
+#
+# Globals:
+#   _tmux_root_dir - Absolute path to the plugin root directory
+# Arguments:
+#   None
+# Returns:
+#   0 on success
+_tmux_setup_keybindings() {
+	local pomodoro_key
+	pomodoro_key="$(_tmux_get_option "@pomodoro-key" "P")"
+
+	# Chord prefix: prefix+<pomodoro_key> enters the pomodoro table
+	_tmux_bind_switch "prefix" "$pomodoro_key" "pomodoro"
+
+	# Sub-keys inside the pomodoro table
+	_tmux_bind_key "pomodoro" "f" "$_tmux_root_dir/scripts/tmux_pomodoro_cmd.sh focus"
+	_tmux_bind_key "pomodoro" "b" "$_tmux_root_dir/scripts/tmux_pomodoro_cmd.sh break"
+	_tmux_bind_key "pomodoro" "s" "$_tmux_root_dir/scripts/tmux_pomodoro_cmd.sh stop"
+}
+
 # Main entry point for the plugin.
 #
 # Initializes the Pomodoro plugin by updating the status-right
-# and status-left options to interpolate the pomodoro_status pattern.
+# and status-left options to interpolate the pomodoro_status pattern,
+# then registers the keybindings.
 #
 # Globals:
 #   None
@@ -57,6 +83,7 @@ _tmux_update_option() {
 main() {
 	_tmux_update_option "status-left"
 	_tmux_update_option "status-right"
+	_tmux_setup_keybindings
 }
 
 main
