@@ -148,8 +148,7 @@ impl<'q> StopCommand<'q> {
                     }
                 }
                 SessionEventKind::Aborted | SessionEventKind::Completed => {
-                    session = self.get_session(&session_event.session_id)?;
-                    println!("No active {} session to stop.", session.kind);
+                    println!("No active session found.");
                     None
                 }
             },
