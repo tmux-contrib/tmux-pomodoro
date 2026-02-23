@@ -58,7 +58,7 @@ _tmux_bind_key() {
 	local table="$1"
 	local key="$2"
 	local command="$3"
-	tmux bind-key -T "$table" "$key" run-shell "$command"
+	tmux bind-key -T "$table" "$key" run-shell "$command > /dev/null 2>&1"
 }
 
 # Bind a key in a tmux key table to switch into another key table.
