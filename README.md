@@ -89,6 +89,16 @@ your `~/.tmux.conf` **before** the plugin loads:
 set -g @pomodoro-key "p"   # use prefix+p instead
 ```
 
+### Disabling notifications
+
+By default, each action (start, pause, resume, stop) shows a tmux status-bar
+notification. To suppress all notifications, set `@pomodoro-notify` to
+`off` in your `~/.tmux.conf` **before** the plugin loads:
+
+```tmux
+set -g @pomodoro-notify "off"
+```
+
 ## CLI Commands
 
 Control the timer directly from your terminal:
