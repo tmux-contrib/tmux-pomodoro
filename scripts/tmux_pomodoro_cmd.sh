@@ -16,7 +16,9 @@ _tmux_display_message() {
   local message="$1"
   local display
   display="$(_tmux_get_option "@pomodoro-notify" "on")"
-  [[ "$display" == "on" ]] && tmux display-message "$message"
+  if [[ "$display" == "on" ]]; then
+    tmux display-message "$message"
+  fi
 }
 
 session_state=$(pomodoro status --format "{{ state }}" 2>/dev/null || echo "none")
