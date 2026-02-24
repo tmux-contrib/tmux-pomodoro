@@ -32,45 +32,34 @@ _tmux_display_message() {
 	fi
 }
 
-# Show an interactive duration picker menu for focus sessions.
+# Show an interactive duration picker menu for the given session kind.
 #
-# Each item calls back into this script with an explicit duration, so the
-# selected value is passed directly to `pomodoro start --duration`.
+# Builds menu items dynamically from start to end (inclusive) in steps of
+# increment minutes, each calling back into this script with the chosen
+# duration.
 #
 # Globals:
 #   _tmux_pomodoro_cmd - Absolute path to this script
 # Arguments:
-#   None
+#   $1 - kind      : session kind passed to the dispatcher (focus | break)
+#   $2 - start     : first duration in minutes (integer)
+#   $3 - end       : last  duration in minutes (integer, inclusive)
+#   $4 - increment : step between options in minutes (integer)
 # Returns:
 #   0 on success
-_tmux_display_focus_menu() {
-	tmux display-menu -x R -y S -T " Focus Duration " \
-		"15 minutes" "1" "run-shell '$_tmux_pomodoro_cmd focus 15m > /dev/null 2>&1'" \
-		"20 minutes" "2" "run-shell '$_tmux_pomodoro_cmd focus 20m > /dev/null 2>&1'" \
-		"25 minutes" "3" "run-shell '$_tmux_pomodoro_cmd focus 25m > /dev/null 2>&1'" \
-		"30 minutes" "4" "run-shell '$_tmux_pomodoro_cmd focus 30m > /dev/null 2>&1'" \
-		"40 minutes" "5" "run-shell '$_tmux_pomodoro_cmd focus 40m > /dev/null 2>&1'" \
-		"50 minutes" "6" "run-shell '$_tmux_pomodoro_cmd focus 50m > /dev/null 2>&1'" \
-		"60 minutes" "7" "run-shell '$_tmux_pomodoro_cmd focus 60m > /dev/null 2>&1'"
-}
+_tmux_display_menu() {
+	local kind="$1" start="$2" end="$3" increment="$4"
+	local title
+	title=" ${kind^} Duration "
 
-# Show an interactive duration picker menu for break sessions.
-#
-# Each item calls back into this script with an explicit duration, so the
-# selected value is passed directly to `pomodoro start --duration`.
-#
-# Globals:
-#   _tmux_pomodoro_cmd - Absolute path to this script
-# Arguments:
-#   None
-# Returns:
-#   0 on success
-_tmux_display_break_menu() {
-	tmux display-menu -x R -y S -T " Break Duration " \
-		"10 minutes" "1" "run-shell '$_tmux_pomodoro_cmd break 10m > /dev/null 2>&1'" \
-		"15 minutes" "2" "run-shell '$_tmux_pomodoro_cmd break 15m > /dev/null 2>&1'" \
-		"20 minutes" "3" "run-shell '$_tmux_pomodoro_cmd break 20m > /dev/null 2>&1'" \
-		"30 minutes" "4" "run-shell '$_tmux_pomodoro_cmd break 30m > /dev/null 2>&1'"
+	local -a args=(-x R -y S -T "$title")
+	local key=1 duration
+	for ((duration = start; duration <= end; duration += increment)); do
+		args+=("${duration} minutes" "$key" "run-shell '$_tmux_pomodoro_cmd $kind ${duration}m > /dev/null 2>&1'")
+		((key++))
+	done
+
+	tmux display-menu "${args[@]}"
 }
 
 # Main entry point for the pomodoro command dispatcher.
@@ -118,7 +107,7 @@ main() {
 			if [[ -n "$session_duration" ]]; then
 				_tmux_display_message "$(pomodoro start --mode focus --duration "$session_duration" 2>&1)"
 			else
-				_tmux_display_focus_menu
+				_tmux_display_menu "focus" 15 60 5
 			fi
 			;;
 		esac
@@ -143,7 +132,7 @@ main() {
 			if [[ -n "$session_duration" ]]; then
 				_tmux_display_message "$(pomodoro start --mode break --duration "$session_duration" 2>&1)"
 			else
-				_tmux_display_break_menu
+				_tmux_display_menu "break" 10 30 5
 			fi
 			;;
 		esac
