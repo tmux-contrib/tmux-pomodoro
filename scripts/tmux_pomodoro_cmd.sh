@@ -43,7 +43,7 @@ _tmux_display_message() {
 #   None
 # Returns:
 #   0 on success
-_tmux_focus_menu() {
+_tmux_display_focus_menu() {
 	tmux display-menu -x R -y S -T " Focus Duration " \
 		"15 minutes" "1" "run-shell '$_tmux_pomodoro_cmd focus 15m > /dev/null 2>&1'" \
 		"20 minutes" "2" "run-shell '$_tmux_pomodoro_cmd focus 20m > /dev/null 2>&1'" \
@@ -65,7 +65,7 @@ _tmux_focus_menu() {
 #   None
 # Returns:
 #   0 on success
-_tmux_break_menu() {
+_tmux_display_break_menu() {
 	tmux display-menu -x R -y S -T " Break Duration " \
 		"10 minutes" "1" "run-shell '$_tmux_pomodoro_cmd break 10m > /dev/null 2>&1'" \
 		"15 minutes" "2" "run-shell '$_tmux_pomodoro_cmd break 15m > /dev/null 2>&1'" \
@@ -118,7 +118,7 @@ main() {
 			if [[ -n "$session_duration" ]]; then
 				_tmux_display_message "$(pomodoro start --mode focus --duration "$session_duration" 2>&1)"
 			else
-				_tmux_focus_menu
+				_tmux_display_focus_menu
 			fi
 			;;
 		esac
@@ -143,7 +143,7 @@ main() {
 			if [[ -n "$session_duration" ]]; then
 				_tmux_display_message "$(pomodoro start --mode break --duration "$session_duration" 2>&1)"
 			else
-				_tmux_break_menu
+				_tmux_display_break_menu
 			fi
 			;;
 		esac
