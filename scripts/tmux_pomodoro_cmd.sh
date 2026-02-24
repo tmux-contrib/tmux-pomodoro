@@ -44,7 +44,7 @@ _tmux_display_message() {
 # Returns:
 #   0 on success
 _tmux_focus_menu() {
-	tmux display-menu -T " Focus Duration " \
+	tmux display-menu -x R -y S -T " Focus Duration " \
 		"15 minutes" "1" "run-shell '$_tmux_pomodoro_cmd focus 15m > /dev/null 2>&1'" \
 		"20 minutes" "2" "run-shell '$_tmux_pomodoro_cmd focus 20m > /dev/null 2>&1'" \
 		"25 minutes" "3" "run-shell '$_tmux_pomodoro_cmd focus 25m > /dev/null 2>&1'" \
@@ -66,7 +66,7 @@ _tmux_focus_menu() {
 # Returns:
 #   0 on success
 _tmux_break_menu() {
-	tmux display-menu -T " Break Duration " \
+	tmux display-menu -x R -y S -T " Break Duration " \
 		"10 minutes" "1" "run-shell '$_tmux_pomodoro_cmd break 10m > /dev/null 2>&1'" \
 		"15 minutes" "2" "run-shell '$_tmux_pomodoro_cmd break 15m > /dev/null 2>&1'" \
 		"20 minutes" "3" "run-shell '$_tmux_pomodoro_cmd break 20m > /dev/null 2>&1'" \
