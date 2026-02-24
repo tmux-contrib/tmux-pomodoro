@@ -9,8 +9,11 @@
 #   break  - Toggle break session only (start/pause/resume); warns if focus is active
 #   stop   - Stop and reset the current session
 
-_tmux_root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "$_tmux_root_dir/scripts/tmux_core.sh"
+_tmux_pomodoro_cmd_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$_tmux_pomodoro_cmd_dir/scripts/tmux_core.sh"
+
+# Self command
+_tmux_pomodoro_cmd="$_tmux_pomodoro_cmd_dir/tmux_pomodoro_cmd.sh"
 
 _tmux_display_message() {
   local message="$1"
@@ -19,6 +22,25 @@ _tmux_display_message() {
   if [[ "$display" == "on" ]]; then
     tmux display-message "$message"
   fi
+}
+
+_tmux_focus_menu() {
+  tmux display-menu -T " Focus Duration " \
+    "15 minutes" "1" "run-shell '$_tmux_pomodoro_cmd focus 15m > /dev/null 2>&1'" \
+    "20 minutes" "2" "run-shell '$_tmux_pomodoro_cmd focus 20m > /dev/null 2>&1'" \
+    "25 minutes" "3" "run-shell '$_tmux_pomodoro_cmd focus 25m > /dev/null 2>&1'" \
+    "30 minutes" "4" "run-shell '$_tmux_pomodoro_cmd focus 30m > /dev/null 2>&1'" \
+    "40 minutes" "5" "run-shell '$_tmux_pomodoro_cmd focus 40m > /dev/null 2>&1'" \
+    "50 minutes" "6" "run-shell '$_tmux_pomodoro_cmd focus 50m > /dev/null 2>&1'" \
+    "60 minutes" "7" "run-shell '$_tmux_pomodoro_cmd focus 60m > /dev/null 2>&1'"
+}
+
+_tmux_break_menu() {
+  tmux display-menu -T " Break Duration " \
+    "10 minutes" "2" "run-shell '$_tmux_pomodoro_cmd break 10m > /dev/null 2>&1'" \
+    "15 minutes" "3" "run-shell '$_tmux_pomodoro_cmd break 15m > /dev/null 2>&1'" \
+    "20 minutes" "4" "run-shell '$_tmux_pomodoro_cmd break 20m > /dev/null 2>&1'" \
+    "30 minutes" "5" "run-shell '$_tmux_pomodoro_cmd break 30m > /dev/null 2>&1'"
 }
 
 session_state=$(pomodoro status --format "{{ state }}" 2>/dev/null || echo "none")
@@ -45,7 +67,11 @@ focus)
     fi
     ;;
   *)
-    _tmux_display_message "$(pomodoro start --mode focus 2>&1)"
+    if [[ -n "$2" ]]; then
+      _tmux_display_message "$(pomodoro start --mode focus --duration "$2" 2>&1)"
+    else
+      _tmux_focus_menu
+    fi
     ;;
   esac
   ;;
@@ -66,7 +92,11 @@ break)
     fi
     ;;
   *)
-    _tmux_display_message "$(pomodoro start --mode break 2>&1)"
+    if [[ -n "$2" ]]; then
+      _tmux_display_message "$(pomodoro start --mode break --duration "$2" 2>&1)"
+    else
+      _tmux_break_menu
+    fi
     ;;
   esac
   ;;

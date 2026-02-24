@@ -56,19 +56,23 @@ _tmux_update_option() {
 # Returns:
 #   0 on success
 _tmux_setup_keybindings() {
-	local pomodoro_key key_focus key_break key_stop
-	pomodoro_key="$(_tmux_get_option "@pomodoro-key"       "p")"
-	key_focus="$(_tmux_get_option    "@pomodoro-key-focus" "f")"
-	key_break="$(_tmux_get_option    "@pomodoro-key-break" "b")"
-	key_stop="$(_tmux_get_option     "@pomodoro-key-stop"  "s")"
+	local pomodoro_key key_focus key_break key_stop key_focus_menu key_break_menu
+	pomodoro_key="$(_tmux_get_option "@pomodoro-key" "p")"
+	key_focus="$(_tmux_get_option "@pomodoro-key-focus" "f")"
+	key_focus_menu="$(_tmux_get_option "@pomodoro-key-focus-menu" "F")"
+	key_break="$(_tmux_get_option "@pomodoro-key-break" "b")"
+	key_break_menu="$(_tmux_get_option "@pomodoro-key-break-menu" "B")"
+	key_stop="$(_tmux_get_option "@pomodoro-key-stop" "s")"
 
 	# Chord prefix: prefix+<pomodoro_key> enters the pomodoro table
 	_tmux_bind_switch "prefix" "$pomodoro_key" "pomodoro"
 
 	# Sub-keys inside the pomodoro table
-	_tmux_bind_key "pomodoro" "$key_focus" "$_tmux_root_dir/scripts/tmux_pomodoro_cmd.sh focus"
-	_tmux_bind_key "pomodoro" "$key_break" "$_tmux_root_dir/scripts/tmux_pomodoro_cmd.sh break"
-	_tmux_bind_key "pomodoro" "$key_stop"  "$_tmux_root_dir/scripts/tmux_pomodoro_cmd.sh stop"
+	_tmux_bind_key "pomodoro" "$key_focus"      "$_tmux_root_dir/scripts/tmux_pomodoro_cmd.sh focus 25m"
+	_tmux_bind_key "pomodoro" "$key_break"      "$_tmux_root_dir/scripts/tmux_pomodoro_cmd.sh break 5m"
+	_tmux_bind_key "pomodoro" "$key_stop"       "$_tmux_root_dir/scripts/tmux_pomodoro_cmd.sh stop"
+	_tmux_bind_key "pomodoro" "$key_focus_menu" "$_tmux_root_dir/scripts/tmux_pomodoro_cmd.sh focus"
+	_tmux_bind_key "pomodoro" "$key_break_menu" "$_tmux_root_dir/scripts/tmux_pomodoro_cmd.sh break"
 }
 
 # Main entry point for the plugin.
