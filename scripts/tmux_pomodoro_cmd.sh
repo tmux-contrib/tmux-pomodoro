@@ -13,7 +13,7 @@ _tmux_pomodoro_cmd_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$_tmux_pomodoro_cmd_dir/scripts/tmux_core.sh"
 
 # Self command
-_tmux_pomodoro_cmd="$_tmux_pomodoro_cmd_dir/tmux_pomodoro_cmd.sh"
+_tmux_pomodoro_cmd="$_tmux_pomodoro_cmd_dir/scripts/tmux_pomodoro_cmd.sh"
 
 _tmux_display_message() {
   local message="$1"
@@ -37,10 +37,10 @@ _tmux_focus_menu() {
 
 _tmux_break_menu() {
   tmux display-menu -T " Break Duration " \
-    "10 minutes" "2" "run-shell '$_tmux_pomodoro_cmd break 10m > /dev/null 2>&1'" \
-    "15 minutes" "3" "run-shell '$_tmux_pomodoro_cmd break 15m > /dev/null 2>&1'" \
-    "20 minutes" "4" "run-shell '$_tmux_pomodoro_cmd break 20m > /dev/null 2>&1'" \
-    "30 minutes" "5" "run-shell '$_tmux_pomodoro_cmd break 30m > /dev/null 2>&1'"
+    "10 minutes" "1" "run-shell '$_tmux_pomodoro_cmd break 10m > /dev/null 2>&1'" \
+    "15 minutes" "2" "run-shell '$_tmux_pomodoro_cmd break 15m > /dev/null 2>&1'" \
+    "20 minutes" "3" "run-shell '$_tmux_pomodoro_cmd break 20m > /dev/null 2>&1'" \
+    "30 minutes" "4" "run-shell '$_tmux_pomodoro_cmd break 30m > /dev/null 2>&1'"
 }
 
 session_state=$(pomodoro status --format "{{ state }}" 2>/dev/null || echo "none")
