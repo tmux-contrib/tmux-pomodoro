@@ -132,7 +132,7 @@ main() {
 			if [[ -n "$session_duration" ]]; then
 				_tmux_display_message "$(pomodoro start --mode break --duration "$session_duration" 2>&1)"
 			else
-				_tmux_display_menu "break" 10 30 5
+				_tmux_display_menu "break" 5 30 5
 			fi
 			;;
 		esac
