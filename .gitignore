@@ -1,6 +1,15 @@
-.DS_Store
+# Nix
+result
+result-*
+.direnv/
+
+# Editors
 *.swp
 *.swo
 *~
-.idea/
 .vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

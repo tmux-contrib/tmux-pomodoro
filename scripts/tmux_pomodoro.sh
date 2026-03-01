@@ -1,35 +1,6 @@
 #!/usr/bin/env bash
-
-[ -z "$DEBUG" ] || set -x
-
-# Display the current Pomodoro timer status in the tmux status bar.
-#
-# Queries the pomodoro CLI and outputs a tmux-formatted status string with
-# color-coding based on the session kind:
-#
-#   focus + running   → red    + TICKING icon + remaining time
-#   focus + paused    → yellow + TICKING icon + remaining time
-#   focus + completed → green  + DONE icon
-#   focus + aborted   → red    + SQUASHED icon
-#   break (>=600s) + running   → blue   + LONG_PAUSE icon + remaining time
-#   break (>=600s) + paused    → yellow + LONG_PAUSE icon + remaining time
-#   break (>=600s) + completed → green  + LONG_PAUSE icon
-#   break (>=600s) + aborted   → red    + LONG_PAUSE icon
-#   break (<600s)  + running (>=3000s elapsed) → grey + AWAY icon
-#   break (<600s)  + running   → blue   + SHORT_PAUSE icon + remaining time
-#   break (<600s)  + paused    → yellow + SHORT_PAUSE icon + remaining time
-#   break (<600s)  + completed → green  + SHORT_PAUSE icon
-#   break (<600s)  + aborted   → red    + SHORT_PAUSE icon
-#   none              → grey   + IDLE icon
-#
-# Arguments:
-#   None
-# Outputs:
-#   tmux-formatted Pomodoro status string
-# Returns:
-#   0 on success
-# Dependencies:
-#   - pomodoro: Command-line Pomodoro timer
+set -euo pipefail
+[[ -z "${DEBUG:-}" ]] || set -x
 
 # Pomicon symbols (https://github.com/gabrielelana/pomicons) via Unicode PUA codepoints.
 _POMODORO_ICON_DONE=$(printf '\xEE\x80\x81')        # U+E001 POMODORO_DONE
@@ -72,16 +43,6 @@ _POMODORO_FORMAT="\
 #[fg=default]${_POMODORO_ICON_IDLE}#[default]\
 {%- endif -%}"
 
-# Main entry point.
-#
-# Globals:
-#   _POMODORO_FORMAT - MiniJinja template with embedded tmux color codes
-# Arguments:
-#   None
-# Outputs:
-#   tmux-formatted status string (e.g., "#[fg=red]<icon> 20:45#[default]")
-# Returns:
-#   0 on success
 main() {
 	local status
 

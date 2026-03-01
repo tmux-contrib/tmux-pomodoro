@@ -236,6 +236,38 @@ chmod +x ~/.tmux/plugins/tmux-pomodoro/scripts/*.sh
 5. If no Pomodoro is active (`state` is `none`), nothing is displayed
 6. If the pomodoro CLI is not installed, nothing is displayed
 
+## Development
+
+### Prerequisites
+
+Install dependencies using [Nix](https://nixos.org/):
+
+```sh
+nix develop
+```
+
+Or install manually: `bash`, `tmux`, `bats`
+
+### Running Tests
+
+```sh
+bats tests/
+```
+
+### Building the CLI
+
+```sh
+cargo install --path crates/pomodoro
+```
+
+### Debugging
+
+Enable trace output with the `DEBUG` environment variable:
+
+```sh
+DEBUG=1 /path/to/tmux-pomodoro/scripts/tmux_pomodoro.sh
+```
+
 ## Related Projects
 
 - [tmux-keyboard](https://github.com/tmux-contrib/tmux-keyboard) — Display

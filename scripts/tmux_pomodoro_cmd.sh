@@ -1,28 +1,20 @@
 #!/usr/bin/env bash
+set -euo pipefail
+[[ -z "${DEBUG:-}" ]] || set -x
 
-# Pomodoro command dispatcher.
-#
-# Usage: tmux_pomodoro_cmd.sh <command> [duration]
-#
-# Commands:
-#   focus  - Toggle focus session only (start/pause/resume); warns if break is active
-#   break  - Toggle break session only (start/pause/resume); warns if focus is active
-#   stop   - Stop and reset the current session
+_tmux_pomodoro_cmd_source_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-_tmux_pomodoro_cmd_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "$_tmux_pomodoro_cmd_dir/scripts/tmux_core.sh"
+[[ -f "$_tmux_pomodoro_cmd_source_dir/tmux_core.sh" ]] || {
+	echo "tmux-pomodoro: missing tmux_core.sh" >&2
+	exit 1
+}
+
+# shellcheck source=tmux_core.sh
+source "$_tmux_pomodoro_cmd_source_dir/tmux_core.sh"
 
 # Absolute path to this script, used by menu items to call back into the dispatcher.
-_tmux_pomodoro_cmd="$_tmux_pomodoro_cmd_dir/scripts/tmux_pomodoro_cmd.sh"
+_tmux_pomodoro_cmd="$_tmux_pomodoro_cmd_source_dir/tmux_pomodoro_cmd.sh"
 
-# Display a tmux message if the @pomodoro-notify option is enabled.
-#
-# Globals:
-#   None
-# Arguments:
-#   $1 - The message text to display
-# Returns:
-#   0 on success
 _tmux_display_message() {
 	local message="$1"
 	local display
@@ -32,21 +24,6 @@ _tmux_display_message() {
 	fi
 }
 
-# Show an interactive duration picker menu for the given session kind.
-#
-# Builds menu items dynamically from start to end (inclusive) in steps of
-# increment minutes, each calling back into this script with the chosen
-# duration.
-#
-# Globals:
-#   _tmux_pomodoro_cmd - Absolute path to this script
-# Arguments:
-#   $1 - kind      : session kind passed to the dispatcher (focus | break)
-#   $2 - start     : first duration in minutes (integer)
-#   $3 - end       : last  duration in minutes (integer, inclusive)
-#   $4 - increment : step between options in minutes (integer)
-# Returns:
-#   0 on success
 _tmux_display_menu() {
 	local kind="$1" start="$2" end="$3" increment="$4"
 	local title
@@ -62,22 +39,9 @@ _tmux_display_menu() {
 	tmux display-menu "${args[@]}"
 }
 
-# Main entry point for the pomodoro command dispatcher.
-#
-# Reads the current session state and kind once, then dispatches to the
-# appropriate action based on the command and session state. For focus and
-# break commands with no duration argument, shows an interactive menu.
-#
-# Globals:
-#   _tmux_pomodoro_cmd_dir - Absolute path to the plugin root directory
-# Arguments:
-#   $1 - Command: focus | break | stop
-#   $2 - Optional duration string (e.g. 25m, 1h30m); only used by focus and break
-# Returns:
-#   0 on success, 1 on invalid command
 main() {
 	local session_command="$1"
-	local session_duration="$2"
+	local session_duration="${2:-}"
 	local session_state session_kind
 
 	session_state=$(pomodoro status --format "{{ state }}" 2>/dev/null || echo "none")
