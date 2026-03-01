@@ -1,8 +1,6 @@
 # tmux-pomodoro
 
-A tmux plugin that integrates with the **pomodoro** CLI to display your
-Pomodoro timer status in the tmux status bar with automatic color-coding based
-on session state and type.
+A full-featured Pomodoro timer for tmux with color-coded status, chord keybindings, and interactive duration menus — powered by the **pomodoro** CLI built in this repository.
 
 ## Prerequisites
 
