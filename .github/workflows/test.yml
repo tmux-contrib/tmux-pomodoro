@@ -16,3 +16,4 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v3
       - uses: DeterminateSystems/magic-nix-cache-action@v8
       - run: nix develop --command bats tests/
+      - run: nix develop --command cargo test --manifest-path crates/pomodoro/Cargo.toml
