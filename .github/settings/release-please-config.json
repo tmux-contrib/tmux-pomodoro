@@ -1,7 +1,14 @@
 {
   "packages": {
     ".": {
-      "release-type": "simple"
+      "release-type": "simple",
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "crates/pomodoro/Cargo.toml",
+          "jsonpath": "$.package.version"
+        }
+      ]
     }
   }
 }
