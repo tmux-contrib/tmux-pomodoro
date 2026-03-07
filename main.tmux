@@ -13,7 +13,7 @@ _tmux_pomodoro_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$_tmux_pomodoro_root/scripts/tmux_core.sh"
 
 pomodoro_status="#($_tmux_pomodoro_root/scripts/tmux_pomodoro.sh)"
-pomodoro_status_pattern="\#{pomodoro_status}"
+pomodoro_status_pattern="\#{pomodoro}"
 
 _tmux_interpolate() {
 	local content=$1

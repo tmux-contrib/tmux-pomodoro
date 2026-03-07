@@ -55,10 +55,10 @@ Then press `prefix + I` to install the plugin.
 
 ## Usage
 
-Add `#{pomodoro_status}` to your `status-right` or `status-left`:
+Add `#{pomodoro}` to your `status-right` or `status-left`:
 
 ```tmux
-set -g status-right "#{pomodoro_status} | %H:%M"
+set -g status-right "#{pomodoro} | %H:%M"
 ```
 
 The plugin color-codes the remaining time automatically based on the current
@@ -232,7 +232,7 @@ chmod +x ~/.tmux/plugins/tmux-pomodoro/scripts/*.sh
 
 ## How It Works
 
-1. The plugin registers a `#{pomodoro_status}` format string that tmux will interpolate
+1. The plugin registers a `#{pomodoro}` format string that tmux will interpolate
 2. When tmux renders the status bar, it executes `scripts/tmux_pomodoro.sh`
 3. The script queries `pomodoro status --format "<template>"` where the
    template embeds tmux color codes based on `state` and `kind`
