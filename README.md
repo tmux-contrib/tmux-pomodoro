@@ -9,7 +9,13 @@ A full-featured Pomodoro timer for tmux with color-coded status, chord keybindin
 
 ### Installing pomodoro
 
-Build and install the CLI from source using Cargo:
+**Using Nix** (recommended):
+
+```bash
+nix profile install github:tmux-contrib/tmux-pomodoro
+```
+
+**Using Cargo:**
 
 ```bash
 cargo install --path crates/pomodoro
@@ -244,7 +250,10 @@ Install dependencies using [Nix](https://nixos.org/):
 nix develop
 ```
 
-Or install manually: `bash`, `tmux`, `bats`
+This drops you into a shell with `bash`, `tmux`, `bats`, and the full Rust
+toolchain (`cargo`, `rustc`, `rustfmt`, `clippy`, `rust-analyzer`).
+
+Or install manually: `bash`, `tmux`, `bats`, and [Rust](https://rustup.rs/).
 
 ### Running Tests
 
@@ -255,6 +264,10 @@ bats tests/
 ### Building the CLI
 
 ```sh
+# With Nix
+nix build
+
+# With Cargo
 cargo install --path crates/pomodoro
 ```
 
