@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.4.0...v0.5.0) (2026-03-07)
+
+
+### Features
+
+* **nix:** add packages.default and Rust toolchain to root flake ([db1a4de](https://github.com/tmux-contrib/tmux-pomodoro/commit/db1a4de4b2870fef15b7442fa0b8de7a1f7ffbfb))
+
 ## [0.4.0](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.3.0...v0.4.0) (2026-03-06)
 
 
