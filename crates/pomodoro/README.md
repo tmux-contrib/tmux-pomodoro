@@ -5,16 +5,10 @@ SQLite database so the timer survives process restarts.
 
 ## Installation
 
-**Using Nix** (from the repo root):
+**Using Nix:**
 
 ```sh
 nix profile install github:tmux-contrib/tmux-pomodoro
-```
-
-Or using the crate flake directly:
-
-```sh
-nix profile install github:tmux-contrib/tmux-pomodoro?dir=crates/pomodoro
 ```
 
 **Using Cargo:**
