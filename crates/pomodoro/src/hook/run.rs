@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
+use std::time::Duration;
 
 /// Arguments passed to a hook script as a JSON payload over stdin.
 ///
@@ -65,11 +66,29 @@ impl Runner {
         }
 
         let data = serde_json::to_string(args).context("Failed to serialize hook arguments")?;
-        let mut process = Command::new(&path)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::null())
-            .spawn()
-            .context("Failed to spawn hook")?;
+
+        // On Linux, fput() (which clears the inode write-reference count after
+        // close) can be deferred via task-work. If another process has just
+        // written this hook file and the deferred cleanup hasn't run yet,
+        // execve() returns ETXTBSY. Retry with a short exponential back-off to
+        // let the kernel finish the cleanup.
+        let mut process = {
+            let mut delay = Duration::from_millis(1);
+            loop {
+                match Command::new(&path)
+                    .stdin(Stdio::piped())
+                    .stdout(Stdio::null())
+                    .spawn()
+                {
+                    Ok(p) => break p,
+                    Err(e) if e.raw_os_error() == Some(26) && delay <= Duration::from_millis(16) => {
+                        std::thread::sleep(delay);
+                        delay *= 2;
+                    }
+                    Err(e) => return Err(e).context("Failed to spawn hook"),
+                }
+            }
+        };
 
         if let Some(mut stdin) = process.stdin.take() {
             stdin
