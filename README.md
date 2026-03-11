@@ -1,5 +1,7 @@
 # tmux-pomodoro
 
+[![Test](https://github.com/tmux-contrib/tmux-pomodoro/actions/workflows/test.yml/badge.svg)](https://github.com/tmux-contrib/tmux-pomodoro/actions/workflows/test.yml) [![Release](https://img.shields.io/github/v/release/tmux-contrib/tmux-pomodoro)](https://github.com/tmux-contrib/tmux-pomodoro/releases) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A full-featured Pomodoro timer for tmux with color-coded status, chord keybindings, and interactive duration menus — powered by the **pomodoro** CLI built in this repository.
 
 ## Prerequisites
