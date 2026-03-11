@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.5.0...v0.5.1) (2026-03-11)
+
+
+### Bug Fixes
+
+* retry hook spawn on ETXTBSY to handle deferred Linux fput ([8a78c29](https://github.com/tmux-contrib/tmux-pomodoro/commit/8a78c29b53a97ea8d11231db6d6613ca0afc0cf2))
+
 ## [0.5.0](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.4.0...v0.5.0) (2026-03-07)
 
 
