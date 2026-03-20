@@ -6,23 +6,50 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    { nixpkgs, flake-utils, ... }:
+    let
+      targets = {
+        "x86_64-linux" = "x86_64-unknown-linux-gnu";
+        "aarch64-darwin" = "aarch64-apple-darwin";
+        "x86_64-darwin" = "x86_64-apple-darwin";
+      };
+      hashes = {
+        "x86_64-linux" = "sha256-nyeCeWNf58oDlu1wtWF/ZbhvtKG38JzZqrKAmswgGgw=";
+        "aarch64-darwin" = "sha256-LBKfP/zgpWHB+rcXsfFGcUwzNwSEM5TaAaE/atwKLAg=";
+        "x86_64-darwin" = "sha256-/KS+Vain0bImm6ms4v4jRLzfE5hYKDY7Lqt9IjQOFVg=";
+      };
+    in
+    flake-utils.lib.eachSystem (builtins.attrNames targets) (
+      system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
         manifest = builtins.fromTOML (builtins.readFile ./crates/pomodoro/Cargo.toml);
+        pname = manifest.package.name;
+        version = manifest.package.version;
       in
       {
-        packages.default = pkgs.rustPlatform.buildRustPackage {
-          pname = manifest.package.name;
-          cargoLock.lockFile = ./crates/pomodoro/Cargo.lock;
-          inherit (manifest.package) version;
-          src = ./crates/pomodoro;
-          nativeBuildInputs = with pkgs; [ pkg-config ];
+        packages.default = pkgs.stdenvNoCC.mkDerivation {
+          inherit pname version;
+
+          src = pkgs.fetchurl {
+            url = "https://github.com/tmux-contrib/tmux-pomodoro/releases/download/v${version}/${pname}-${targets.${system}}";
+            hash = hashes.${system};
+          };
+
+          phases = [ "installPhase" ];
+
+          installPhase = ''
+            mkdir -p $out/bin
+            cp $src $out/bin/${pname}
+            chmod +x $out/bin/${pname}
+          '';
+
           meta = with pkgs.lib; {
-            mainProgram = manifest.package.name;
+            mainProgram = pname;
             description = "A simple pomodoro timer CLI";
             license = licenses.mit;
+            platforms = builtins.attrNames targets;
           };
         };
 
@@ -40,5 +67,6 @@
             rust-analyzer
           ];
         };
-      });
+      }
+    );
 }

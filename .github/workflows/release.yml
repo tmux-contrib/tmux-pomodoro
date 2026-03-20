@@ -44,3 +44,22 @@ jobs:
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: pomodoro-${{ matrix.target }}
+  update-flake:
+    needs: [release-please, build]
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Update hashes in flake.nix
+        env:
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: python3 .github/scripts/update-flake-hashes.py "${TAG}"
+      - name: Commit and push updated flake.nix
+        env:
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add flake.nix
+          git commit -m "chore: update flake.nix hashes for ${TAG} [skip ci]"
+          git push
