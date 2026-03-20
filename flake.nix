@@ -54,6 +54,7 @@
         };
 
         devShells.default = pkgs.mkShell {
+          name = "tmux-pomodoro";
           packages = with pkgs; [
             bash
             tmux
