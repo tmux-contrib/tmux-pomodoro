@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.6.0", features = ["derive"] }
-rusqlite = { version = "0.38.0", features = ["bundled", "chrono", "uuid"] }
+rusqlite = { version = "0.39.0", features = ["bundled", "chrono", "uuid"] }
 humantime = "2.3.0"
 xdg = "3.0.0"
 anyhow = "1.0.102"
