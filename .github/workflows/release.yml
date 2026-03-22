@@ -13,7 +13,7 @@ jobs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - uses: googleapis/release-please-action@4.4.0
+      - uses: googleapis/release-please-action@v4
         id: release
         with:
           config-file: .github/config/release-please-config.json
@@ -32,7 +32,7 @@ jobs:
             os: macos-latest
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@6.0.2
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
@@ -40,7 +40,7 @@ jobs:
       - run: |
           mv crates/pomodoro/target/${{ matrix.target }}/release/pomodoro \
              pomodoro-${{ matrix.target }}
-      - uses: softprops/action-gh-release@2.6.1
+      - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: pomodoro-${{ matrix.target }}
@@ -49,7 +49,7 @@ jobs:
     if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@6.0.2
+      - uses: actions/checkout@v6
       - name: Update hashes in flake.nix
         env:
           TAG: ${{ needs.release-please.outputs.tag_name }}
