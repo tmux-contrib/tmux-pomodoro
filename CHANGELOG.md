@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.5.1...v0.6.0) (2026-03-24)
+
+
+### Features
+
+* install pre-built binaries from GitHub releases in flake.nix ([dd08516](https://github.com/tmux-contrib/tmux-pomodoro/commit/dd085168e0517dadf1169814579e2c876dcef7cc))
+
 ## [0.5.1](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.5.0...v0.5.1) (2026-03-11)
 
 
