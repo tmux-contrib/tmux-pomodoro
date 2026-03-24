@@ -15,9 +15,9 @@
         "x86_64-darwin" = "x86_64-apple-darwin";
       };
       hashes = {
-        "x86_64-linux" = "sha256-nyeCeWNf58oDlu1wtWF/ZbhvtKG38JzZqrKAmswgGgw=";
-        "aarch64-darwin" = "sha256-LBKfP/zgpWHB+rcXsfFGcUwzNwSEM5TaAaE/atwKLAg=";
-        "x86_64-darwin" = "sha256-/KS+Vain0bImm6ms4v4jRLzfE5hYKDY7Lqt9IjQOFVg=";
+        "x86_64-linux" = "sha256-WCL5ry5lp+cwjQJplaJVonLKzOGcbPBLxh2dt5Yomlk=";
+        "aarch64-darwin" = "sha256-jR0pzIHjjcnL4kgHeAmhLCl1kqQqKnvzaQ2puibXpSk=";
+        "x86_64-darwin" = "sha256-vBsVX9lfSPQCa9QGztN50gmzl0Xj2sFGtVIwA6epqLU=";
       };
     in
     flake-utils.lib.eachSystem (builtins.attrNames targets) (
