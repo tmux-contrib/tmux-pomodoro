@@ -2,6 +2,12 @@
 name = "pomodoro"
 version = "0.6.0"
 edition = "2021"
+description = "A simple Pomodoro timer CLI"
+license = "MIT"
+license-file = "LICENSE"
+documentation = "https://github.com/tmux-contrib/tmux-pomodoro"
+homepage = "https://github.com/tmux-contrib/tmux-pomodoro"
+repository = "https://github.com/tmux-contrib/tmux-pomodoro"
 
 [dependencies]
 clap = { version = "4.6.0", features = ["derive"] }

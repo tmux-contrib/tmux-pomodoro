@@ -1,11 +1,14 @@
-name: release
+name: Release
+
 on:
   push:
     branches: [main]
+
 permissions:
   contents: write
   id-token: write
   pull-requests: write
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
@@ -13,53 +16,68 @@ jobs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - uses: googleapis/release-please-action@v4
+      - name: Create Release PR
         id: release
+        uses: googleapis/release-please-action@v4
         with:
           config-file: .github/config/release-please-config.json
           manifest-file: .github/config/release-please-manifest.json
+          target-branch: main
+
   build:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created }}
     strategy:
       matrix:
         include:
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-          - target: aarch64-apple-darwin
-            os: macos-latest
-          - target: x86_64-apple-darwin
-            os: macos-latest
+          - os: ubuntu-latest
+            nix_system: x86_64-linux
+          - os: macos-14
+            nix_system: aarch64-darwin
+
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
-      - run: cargo build --release --manifest-path crates/pomodoro/Cargo.toml --target ${{ matrix.target }}
-      - run: |
-          mv crates/pomodoro/target/${{ matrix.target }}/release/pomodoro \
-             pomodoro-${{ matrix.target }}
-      - uses: softprops/action-gh-release@v2
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v22
+
+      - name: Setup Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@v13
+
+      - name: Build with Nix
+        run: nix build ./crates/pomodoro --system ${{ matrix.nix_system }}
+
+      - name: Prepare Release Assets
+        run: |
+          mkdir -p release && install -m 0755 result/bin/pomodoro release/pomodoro-${{ matrix.nix_system }}
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
-          files: pomodoro-${{ matrix.target }}
-  update-flake:
-    needs: [release-please, build]
+          files: release/pomodoro-${{ matrix.nix_system }}
+
+  publish-crate:
+    needs: release-please
     if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: Update hashes in flake.nix
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v22
+
+      - name: Setup Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@v13
+
+      - name: Authenticate with Crates.io
+        uses: rust-lang/crates-io-auth-action@v1
+        id: auth
+
+      - name: Publish to Crates.io
+        run: cd crates/pomodoro && nix develop . --command cargo publish
         env:
-          TAG: ${{ needs.release-please.outputs.tag_name }}
-        run: python3 .github/scripts/update-flake-hashes.py "${TAG}"
-      - name: Commit and push updated flake.nix
-        env:
-          TAG: ${{ needs.release-please.outputs.tag_name }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add flake.nix
-          git commit -m "chore: update flake.nix hashes for ${TAG} [skip ci]"
-          git push
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}

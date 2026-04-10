@@ -1,7 +1,9 @@
-name: test
+name: Test
+
 permissions:
   contents: read
   id-token: write
+
 on:
   push:
     branches: [main]
@@ -12,8 +14,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: DeterminateSystems/nix-installer-action@v22
-      - uses: DeterminateSystems/magic-nix-cache-action@v13
-      - run: nix develop --command bats tests/
-      - run: nix develop --command cargo test --manifest-path crates/pomodoro/Cargo.toml
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v22
+
+      - name: Setup Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@v13
+
+      - name: Run Plugin Tests
+        run: nix develop --command bats tests/
+
+      - name: Run Rust Tests
+        run: cd crates/pomodoro && nix develop . --command cargo test
