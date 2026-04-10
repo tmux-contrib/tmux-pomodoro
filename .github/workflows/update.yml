@@ -18,6 +18,7 @@ jobs:
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v22
+
       - name: Setup Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@v13
 
@@ -27,18 +28,6 @@ jobs:
           pr-title: "chore: update flake.lock dependencies"
           pr-labels: |
             dependencies
-
-  update-crate:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v22
-
-      - name: Setup Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@v13
 
       - name: Update crates/pomodoro flake.lock
         uses: DeterminateSystems/update-flake-lock@v28
