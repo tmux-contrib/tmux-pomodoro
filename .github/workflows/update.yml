@@ -1,4 +1,4 @@
-name: Update flake locks
+name: Update Flake Locks
 
 on:
   schedule:
@@ -25,14 +25,4 @@ jobs:
       - name: Update root flake.lock
         uses: DeterminateSystems/update-flake-lock@v28
         with:
-          pr-title: "chore: update flake.lock dependencies"
-          pr-labels: |
-            dependencies
-
-      - name: Update crates/pomodoro flake.lock
-        uses: DeterminateSystems/update-flake-lock@v28
-        with:
-          path-to-flake-dir: crates/pomodoro
-          pr-title: "chore: update crates/pomodoro flake.lock dependencies"
-          pr-labels: |
-            dependencies
+          pr-labels: dependencies
