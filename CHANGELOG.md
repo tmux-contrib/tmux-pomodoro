@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.1](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.6.0...v0.6.1) (2026-04-11)
+
+
+### Bug Fixes
+
+* add postCreateCommand to restore nix volume permissions ([877360c](https://github.com/tmux-contrib/tmux-pomodoro/commit/877360c20b03c8a0993c415360f7bc6401b2cb6d))
+* resolve rebase conflict in flake.nix ([c546201](https://github.com/tmux-contrib/tmux-pomodoro/commit/c546201aff6f8ae2eebe20f820df2b246f3f97d2))
+
 ## [0.6.0](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.5.1...v0.6.0) (2026-03-24)
 
 
