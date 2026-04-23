@@ -1,19 +1,22 @@
 name: CI
 
-permissions:
-  contents: write
-  id-token: write
-  pull-requests: write
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -23,12 +26,60 @@ jobs:
 
       - name: Setup Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          use-flakehub: disabled
+          use-gha-cache: enabled
 
       - name: Run Plugin Tests
-        run: nix develop --command bats tests/
+        run: |
+          nix develop --command bats tests/
 
       - name: Run Rust Tests
-        run: cd crates/pomodoro && nix develop . --command cargo test
+        run: |
+          cd crates/pomodoro && nix develop . --command cargo test
+
+  build:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            nix_system: x86_64-linux
+          - os: macos-14
+            nix_system: aarch64-darwin
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    timeout-minutes: 60
+    env:
+      BIN_PATH: pomodoro-${{ matrix.nix_system }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v22
+
+      - name: Setup Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          use-flakehub: disabled
+          use-gha-cache: enabled
+
+      - name: Build with Nix
+        run: nix build ./crates/pomodoro --system ${{ matrix.nix_system }}
+
+      - name: Prepare Binary
+        run: install -m 0755 result/bin/pomodoro "$BIN_PATH"
+
+      - name: Upload Binary
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{ env.BIN_PATH }}
+          archive: false
+          if-no-files-found: error
+          retention-days: 1
 
   release:
     needs: build
@@ -37,9 +88,16 @@ jobs:
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Create Release PR
         id: release
@@ -49,36 +107,24 @@ jobs:
           config-file: .github/config/release-please-config.json
           target-branch: main
 
-  build-release:
+  publish:
     needs: release
-    if: ${{ needs.release.outputs.release_created }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            nix_system: x86_64-linux
-          - os: macos-14
-            nix_system: aarch64-darwin
-    runs-on: ${{ matrix.os }}
+    if: needs.release.outputs.release_created
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v22
-
-      - name: Setup Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@v13
-
-      - name: Build with Nix
-        run: nix build ./crates/pomodoro --system ${{ matrix.nix_system }}
-
-      - name: Prepare Release Assets
-        run: |
-          mkdir -p release && install -m 0755 result/bin/pomodoro release/pomodoro-${{ matrix.nix_system }}
+      - name: Download Binaries
+        uses: actions/download-artifact@v8
+        with:
+          pattern: pomodoro-*
+          merge-multiple: true
+          skip-decompress: true
+          path: release/
 
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.release.outputs.tag_name }}
-          files: release/pomodoro-${{ matrix.nix_system }}
+          files: release/*
