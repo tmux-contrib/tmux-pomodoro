@@ -1,31 +1,15 @@
 version: 2
 updates:
-  - package-ecosystem: "cargo"
-    directory: "/crates/pomodoro"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    groups:
-      all-cargo:
-        patterns: ["*"]
-    labels:
-      - "dependencies"
-      - "auto-merge"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
     groups:
-      all-actions:
+      all-github-actions:
         patterns: ["*"]
     labels:
       - "dependencies"
-      - "github-actions"
       - "auto-merge"
     commit-message:
       prefix: "chore"
