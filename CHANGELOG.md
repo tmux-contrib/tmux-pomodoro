@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.6.1...v0.6.2) (2026-05-04)
+
+
+### Bug Fixes
+
+* **github:** correct action versions in update.yml ([1961311](https://github.com/tmux-contrib/tmux-pomodoro/commit/196131125c88ddaaf631284eccd7462603fff442))
+
 ## [0.6.1](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.6.0...v0.6.1) (2026-04-16)
 
 
