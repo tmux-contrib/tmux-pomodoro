@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.3](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.6.2...v0.6.3) (2026-05-07)
+
+
+### Bug Fixes
+
+* **ci:** update macos runner and trim workflow formatting ([dee6ad1](https://github.com/tmux-contrib/tmux-pomodoro/commit/dee6ad193e9ecb4c23aa31f7e343ac38177ca56d))
+
 ## [0.6.2](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.6.1...v0.6.2) (2026-05-04)
 
 
