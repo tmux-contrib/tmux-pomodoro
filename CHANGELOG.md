@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.0](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.6.3...v0.7.0) (2026-10-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* the crate and binary are renamed from pomodoro to tmux-pomodoro (the pomodoro crate on crates.io belongs to another project). Release assets are now named tmux-pomodoro-<target>. The configuration, hooks and database stay in $XDG_CONFIG_HOME/pomodoro.
+
+### Features
+
+* restructure like tmux-layout and publish to crates.io ([a6e1629](https://github.com/tmux-contrib/tmux-pomodoro/commit/a6e16294ff9fa581bc6e476d123b41ef8c14de69))
+
 ## [0.6.3](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.6.2...v0.6.3) (2026-05-07)
 
 
