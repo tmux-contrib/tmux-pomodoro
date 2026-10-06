@@ -48,7 +48,7 @@ impl Default for ProgramConfig {
 
 /// Program is the main entry point for the pomodoro timer CLI application.
 #[derive(Parser)]
-#[command(name = "pomodoro", about = "A simple pomodoro timer", version)]
+#[command(name = "tmux-pomodoro", about = "A simple pomodoro timer", version)]
 pub struct Program {
     /// Use an ephemeral in-memory database (data is not persisted)
     #[arg(

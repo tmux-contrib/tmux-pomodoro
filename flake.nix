@@ -1,25 +1,55 @@
 {
-  description = "tmux-pomodoro - tmux plugin for Pomodoro timer status";
+  description = "tmux-pomodoro - a Pomodoro timer CLI and tmux plugin";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { nixpkgs, flake-utils, ... }:
+    {
+      nixpkgs,
+      flake-utils,
+      rust-overlay,
+      ...
+    }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ (import rust-overlay) ];
+        };
+        manifest = (pkgs.lib.importTOML ./Cargo.toml).package;
+        rust-toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
       in
       {
+        packages.default = pkgs.rustPlatform.buildRustPackage {
+          pname = manifest.name;
+          inherit (manifest) version;
+          cargoLock.lockFile = ./Cargo.lock;
+          src = pkgs.lib.cleanSource ./.;
+          doCheck = false;
+          meta = with pkgs.lib; {
+            inherit (manifest) description;
+            inherit (manifest) homepage;
+            license = licenses.mit;
+            mainProgram = manifest.name;
+            platforms = platforms.unix;
+          };
+        };
+
         devShells.default = pkgs.mkShell {
-          name = "tmux-pomodoro";
-          packages = with pkgs; [
-            bash
-            tmux
-            bats
+          inherit (manifest) name;
+          packages = [
+            rust-toolchain
+            pkgs.bash
+            pkgs.tmux
+            pkgs.bats
           ];
         };
       }

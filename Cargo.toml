@@ -1,13 +1,17 @@
 [package]
-name = "pomodoro"
+name = "tmux-pomodoro"
 version = "0.6.3"
 edition = "2021"
-description = "A simple Pomodoro timer CLI"
+description = "A Pomodoro timer CLI that persists sessions in SQLite, with a tmux status-bar plugin"
 license = "MIT"
-license-file = "LICENSE"
 documentation = "https://github.com/tmux-contrib/tmux-pomodoro"
 homepage = "https://github.com/tmux-contrib/tmux-pomodoro"
 repository = "https://github.com/tmux-contrib/tmux-pomodoro"
+readme = "README.md"
+keywords = ["pomodoro", "timer", "tmux", "cli", "productivity"]
+categories = ["command-line-utilities"]
+# The tmux plugin (main.tmux, scripts/) is installed from git, not from crates.io
+include = ["/src", "/tests/*.rs", "/CHANGELOG.md", "/LICENSE", "/README.md"]
 
 [dependencies]
 clap = { version = "4.6.1", features = ["derive"] }

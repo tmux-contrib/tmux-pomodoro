@@ -2,8 +2,8 @@ mod app;
 mod hook;
 mod state;
 
-use crate::app::cli::*;
-use crate::app::cmd::*;
+use crate::app::args::*;
+use crate::app::exec::*;
 use crate::hook::run::*;
 use crate::state::query::*;
 use clap::Parser;

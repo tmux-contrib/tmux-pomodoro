@@ -46,11 +46,11 @@ _POMODORO_FORMAT="\
 main() {
 	local status
 
-	if ! command -v pomodoro >/dev/null 2>&1; then
+	if ! command -v tmux-pomodoro >/dev/null 2>&1; then
 		return 0
 	fi
 
-	status=$(pomodoro status --format "$_POMODORO_FORMAT" 2>/dev/null || true)
+	status=$(tmux-pomodoro status --format "$_POMODORO_FORMAT" 2>/dev/null || true)
 
 	[[ -n "$status" ]] && echo "$status"
 }
