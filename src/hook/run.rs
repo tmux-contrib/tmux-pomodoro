@@ -81,7 +81,9 @@ impl Runner {
                     .spawn()
                 {
                     Ok(p) => break p,
-                    Err(e) if e.raw_os_error() == Some(26) && delay <= Duration::from_millis(16) => {
+                    Err(e)
+                        if e.raw_os_error() == Some(26) && delay <= Duration::from_millis(16) =>
+                    {
                         std::thread::sleep(delay);
                         delay *= 2;
                     }

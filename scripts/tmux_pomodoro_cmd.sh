@@ -44,10 +44,10 @@ main() {
 	local session_duration="${2:-}"
 	local session_state session_kind
 
-	session_state=$(pomodoro status --format "{{ state }}" 2>/dev/null || echo "none")
+	session_state=$(tmux-pomodoro status --format "{{ state }}" 2>/dev/null || echo "none")
 
 	if [[ "$session_command" == "focus" || "$session_command" == "break" ]]; then
-		session_kind=$(pomodoro status --format "{{ kind }}" 2>/dev/null || echo "none")
+		session_kind=$(tmux-pomodoro status --format "{{ kind }}" 2>/dev/null || echo "none")
 	fi
 
 	case "$session_command" in
@@ -55,21 +55,21 @@ main() {
 		case "$session_state" in
 		running)
 			if [[ "$session_kind" == "focus" ]]; then
-				_tmux_display_message "$(pomodoro stop 2>&1)"
+				_tmux_display_message "$(tmux-pomodoro stop 2>&1)"
 			else
 				_tmux_display_message "Cannot start focus — a break session is already in progress"
 			fi
 			;;
 		paused)
 			if [[ "$session_kind" == "focus" ]]; then
-				_tmux_display_message "$(pomodoro start --mode focus 2>&1)"
+				_tmux_display_message "$(tmux-pomodoro start --mode focus 2>&1)"
 			else
 				_tmux_display_message "Cannot resume focus — a break session is paused"
 			fi
 			;;
 		*)
 			if [[ -n "$session_duration" ]]; then
-				_tmux_display_message "$(pomodoro start --mode focus --duration "$session_duration" 2>&1)"
+				_tmux_display_message "$(tmux-pomodoro start --mode focus --duration "$session_duration" 2>&1)"
 			else
 				_tmux_display_menu "focus" 15 60 5
 			fi
@@ -80,21 +80,21 @@ main() {
 		case "$session_state" in
 		running)
 			if [[ "$session_kind" == "break" ]]; then
-				_tmux_display_message "$(pomodoro stop 2>&1)"
+				_tmux_display_message "$(tmux-pomodoro stop 2>&1)"
 			else
 				_tmux_display_message "Cannot start break — a focus session is already in progress"
 			fi
 			;;
 		paused)
 			if [[ "$session_kind" == "break" ]]; then
-				_tmux_display_message "$(pomodoro start --mode break 2>&1)"
+				_tmux_display_message "$(tmux-pomodoro start --mode break 2>&1)"
 			else
 				_tmux_display_message "Cannot resume break — a focus session is paused"
 			fi
 			;;
 		*)
 			if [[ -n "$session_duration" ]]; then
-				_tmux_display_message "$(pomodoro start --mode break --duration "$session_duration" 2>&1)"
+				_tmux_display_message "$(tmux-pomodoro start --mode break --duration "$session_duration" 2>&1)"
 			else
 				_tmux_display_menu "break" 5 30 5
 			fi
@@ -103,7 +103,7 @@ main() {
 		;;
 	stop)
 		if [[ "$session_state" == "running" || "$session_state" == "paused" ]]; then
-			_tmux_display_message "$(pomodoro stop --reset 2>&1)"
+			_tmux_display_message "$(tmux-pomodoro stop --reset 2>&1)"
 		else
 			_tmux_display_message "No active session to stop"
 		fi

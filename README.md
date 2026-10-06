@@ -1,26 +1,40 @@
 # tmux-pomodoro
 
-> A full-featured Pomodoro timer for tmux with color-coded status, chord keybindings, and interactive duration menus — powered by the **pomodoro** CLI built in this repository.
+> A full-featured Pomodoro timer for tmux with color-coded status, chord keybindings, and interactive duration menus — powered by the **tmux-pomodoro** CLI built in this repository.
 
 [![CI](https://github.com/tmux-contrib/tmux-pomodoro/actions/workflows/ci.yml/badge.svg)](https://github.com/tmux-contrib/tmux-pomodoro/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/tmux-contrib/tmux-pomodoro)](https://github.com/tmux-contrib/tmux-pomodoro/releases) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Prerequisites
 
-- [pomodoro](/crates/pomodoro/README.md) — the Pomodoro
+- [`tmux-pomodoro`](https://crates.io/crates/tmux-pomodoro) — the Pomodoro
   timer CLI built in this repository
 
-### Installing pomodoro
+### Installing tmux-pomodoro
 
-**Using Nix** (recommended):
+A single binary with no runtime dependencies.
+
+**Nix** (recommended):
 
 ```bash
 nix profile install github:tmux-contrib/tmux-pomodoro
 ```
 
-**Using Cargo:**
+**Download:** each [release](https://github.com/tmux-contrib/tmux-pomodoro/releases/latest)
+has a binary per platform: `tmux-pomodoro-aarch64-apple-darwin`,
+`tmux-pomodoro-x86_64-apple-darwin`, `tmux-pomodoro-x86_64-unknown-linux-musl`
+and `tmux-pomodoro-aarch64-unknown-linux-musl`. The Linux binaries are static
+and run on any distribution.
 
 ```bash
-cargo install --path crates/pomodoro
+curl -fsSL --create-dirs -o ~/.local/bin/tmux-pomodoro \
+  https://github.com/tmux-contrib/tmux-pomodoro/releases/latest/download/tmux-pomodoro-aarch64-apple-darwin
+chmod +x ~/.local/bin/tmux-pomodoro
+```
+
+**Cargo:**
+
+```bash
+cargo install tmux-pomodoro
 ```
 
 ## Installation
@@ -83,8 +97,8 @@ Press `prefix + p` to enter the pomodoro key table, then:
 | `s` | Stop and reset the current session          |
 
 The smart toggle (`f`) checks the current state:
-- **running** → pauses the session (`pomodoro stop`)
-- **anything else** → starts/resumes (`pomodoro start`)
+- **running** → pauses the session (`tmux-pomodoro stop`)
+- **anything else** → starts/resumes (`tmux-pomodoro start`)
 
 ### Customizing the chord prefix
 
@@ -138,28 +152,28 @@ Control the timer directly from your terminal:
 
 ```bash
 # Start a 25-minute focus session (default)
-pomodoro start
+tmux-pomodoro start
 
 # Start a 5-minute break session
-pomodoro start --mode break
+tmux-pomodoro start --mode break
 
 # Start a focus session with a custom duration
-pomodoro start --mode focus --duration 45m
+tmux-pomodoro start --mode focus --duration 45m
 
 # Pause a running session
-pomodoro stop
+tmux-pomodoro stop
 
 # Abort (reset) the current session
-pomodoro stop --reset
+tmux-pomodoro stop --reset
 
 # Display current status (text format)
-pomodoro status
+tmux-pomodoro status
 
 # Display current status as JSON
-pomodoro status --output json
+tmux-pomodoro status --output json
 
 # Display with a custom MiniJinja template
-pomodoro status --format "{{ kind }} | {{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}"
+tmux-pomodoro status --format "{{ kind }} | {{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}"
 ```
 
 ### Template Variables
@@ -180,26 +194,107 @@ Time formatting with MiniJinja's `format` filter:
 {{ '%02d:%02d' | format(remaining_secs // 60, remaining_secs % 60) }}
 ```
 
+## Configuration
+
+Create `$XDG_CONFIG_HOME/pomodoro/config.toml` (typically
+`~/.config/pomodoro/config.toml`) to override the default durations:
+
+```toml
+focus_duration = "25m"
+break_duration = "5m"
+```
+
+Durations use [humantime](https://docs.rs/humantime) format (`s`, `m`, `h`, and combinations).
+
+
+## Hooks
+
+Place executable scripts in `~/.config/pomodoro/hooks/` to run custom logic
+when session state changes.
+
+| File          | Fired on                         |
+| ------------- | -------------------------------- |
+| `hooks/start` | `started`, `resumed`             |
+| `hooks/stop`  | `paused`, `aborted`, `completed` |
+
+Each script receives a JSON payload on **stdin**:
+
+```json
+{
+  "session": {
+    "id": "019612a0-...",
+    "kind": "focus",
+    "planned_secs": 1500,
+    "created_at": "2024-01-01T10:00:00Z"
+  },
+  "session_event": {
+    "id": "019612a1-...",
+    "kind": "started",
+    "session_id": "019612a0-...",
+    "created_at": "2024-01-01T10:00:00Z"
+  }
+}
+```
+
+A missing hook file is silently skipped. Hook failures do not affect the CLI.
+
+**`~/.config/pomodoro/hooks/start`**
+
+```sh
+#!/bin/sh
+
+payload=$(cat)
+
+kind=$(echo "$payload" | jq -r '.session.kind')
+event=$(echo "$payload" | jq -r '.session_event.kind')
+
+case "$event" in
+  started)  say "Started a new $kind session." ;;
+  resumed)  say "Resumed the $kind session." ;;
+esac
+```
+
+**`~/.config/pomodoro/hooks/stop`**
+
+```sh
+#!/bin/sh
+
+payload=$(cat)
+
+kind=$(echo "$payload" | jq -r '.session.kind')
+event=$(echo "$payload" | jq -r '.session_event.kind')
+
+case "$event" in
+  paused)    say "Paused the $kind session." ;;
+  aborted)   say "Aborted the $kind session." ;;
+  completed) say "The $kind session is completed." ;;
+esac
+```
+
+```sh
+chmod +x ~/.config/pomodoro/hooks/start ~/.config/pomodoro/hooks/stop
+```
+
 ## Troubleshooting
 
 ### Status bar shows nothing
 
-1. Check if pomodoro is installed:
+1. Check if tmux-pomodoro is installed:
 
    ```bash
-   which pomodoro
+   which tmux-pomodoro
    ```
 
-2. Verify pomodoro works:
+2. Verify tmux-pomodoro works:
 
    ```bash
-   pomodoro status
+   tmux-pomodoro status
    ```
 
 3. Start a session to test:
 
    ```bash
-   pomodoro start
+   tmux-pomodoro start
    ```
 
 4. Reload tmux configuration:
@@ -236,11 +331,11 @@ chmod +x ~/.tmux/plugins/tmux-pomodoro/scripts/*.sh
 
 1. The plugin registers a `#{pomodoro}` format string that tmux will interpolate
 2. When tmux renders the status bar, it executes `scripts/tmux_pomodoro.sh`
-3. The script queries `pomodoro status --format "<template>"` where the
+3. The script queries `tmux-pomodoro status --format "<template>"` where the
    template embeds tmux color codes based on `state` and `kind`
 4. The colored output is written directly to the status bar
 5. If no Pomodoro is active (`state` is `none`), nothing is displayed
-6. If the pomodoro CLI is not installed, nothing is displayed
+6. If the tmux-pomodoro CLI is not installed, nothing is displayed
 
 ## Development
 
@@ -252,15 +347,17 @@ Install dependencies using [Nix](https://nixos.org/):
 nix develop
 ```
 
-This drops you into a shell with `bash`, `tmux`, `bats`, and the full Rust
-toolchain (`cargo`, `rustc`, `rustfmt`, `clippy`, `rust-analyzer`).
+This drops you into a shell with `bash`, `tmux`, `bats`, and the Rust toolchain
+pinned in `rust-toolchain.toml` (`cargo`, `rustc`, `rustfmt`, `clippy`,
+`rust-analyzer`).
 
 Or install manually: `bash`, `tmux`, `bats`, and [Rust](https://rustup.rs/).
 
 ### Running Tests
 
 ```sh
-bats tests/
+bats tests/   # plugin
+cargo test    # CLI
 ```
 
 ### Building the CLI
@@ -270,7 +367,7 @@ bats tests/
 nix build
 
 # With Cargo
-cargo install --path crates/pomodoro
+cargo install --path .
 ```
 
 ### Debugging
