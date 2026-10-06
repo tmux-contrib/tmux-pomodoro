@@ -1,4 +1,4 @@
-use crate::state::model::{FromRow, Session, SessionEvent};
+use super::model::{FromRow, Session, SessionEvent};
 use anyhow::{Context, Result};
 use regex::Regex;
 use rusqlite::{named_params, Connection, Transaction, TransactionBehavior};

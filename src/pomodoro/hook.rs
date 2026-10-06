@@ -1,4 +1,4 @@
-use crate::state::model::*;
+use super::model::*;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::io::Write;

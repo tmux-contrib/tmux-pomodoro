@@ -1,11 +1,9 @@
 mod app;
-mod hook;
-mod state;
+mod pomodoro;
 
 use crate::app::args::*;
 use crate::app::exec::*;
-use crate::hook::run::*;
-use crate::state::query::*;
+use crate::pomodoro::*;
 use clap::Parser;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
