@@ -2,6 +2,7 @@ use crate::app::args::*;
 use crate::pomodoro::*;
 use anyhow::Result;
 use chrono::{Duration, Utc};
+use minijinja::value::Serde;
 use minijinja::Environment;
 use uuid::Uuid;
 
@@ -350,7 +351,7 @@ impl<'q> StatusCommand<'q> {
             }
             StatusOutput::Text => {
                 let template = args.format.as_deref().unwrap_or(DEFAULT_TEXT_TEMPLATE);
-                let output = Environment::new().render_str(template, status)?;
+                let output = Environment::new().render_str(template, Serde(status))?;
                 println!("{}", output);
             }
         }
