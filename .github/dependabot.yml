@@ -25,6 +25,7 @@ updates:
         update-types: ["minor", "patch"]
     labels:
       - "dependencies"
+      - "auto-merge"
     commit-message:
       prefix: "chore"
       include: "scope"
