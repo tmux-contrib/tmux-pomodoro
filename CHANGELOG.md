@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.7.0...v0.7.1) (2026-10-26)
+
+
+### Bug Fixes
+
+* enable minijinja serde feature for 3.0 ([86eb61d](https://github.com/tmux-contrib/tmux-pomodoro/commit/86eb61d59629e95a728765008bd2ec8b6e64d1e7))
+
 ## [0.7.0](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.6.3...v0.7.0) (2026-10-06)
 
 
