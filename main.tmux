@@ -20,7 +20,7 @@ _tmux_interpolate() {
 	local pattern=$2
 	local value=$3
 
-	echo "${content/$pattern/$value}"
+	echo "${content//$pattern/$value}"
 }
 
 _tmux_bind_key() {
