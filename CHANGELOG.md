@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.7.1...v0.7.2) (2026-10-30)
+
+
+### Bug Fixes
+
+* replace every #{pomodoro} placeholder in a status option ([#86](https://github.com/tmux-contrib/tmux-pomodoro/issues/86)) ([a7e0bae](https://github.com/tmux-contrib/tmux-pomodoro/commit/a7e0baed93ae2c2106e15b714e797cc2522e9505))
+
 ## [0.7.1](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.7.0...v0.7.1) (2026-10-26)
 
 
