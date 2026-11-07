@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.0](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.7.2...v0.8.0) (2026-11-07)
+
+
+### Features
+
+* **ci:** push the Nix build to Cachix, and merge with the App token ([#92](https://github.com/tmux-contrib/tmux-pomodoro/issues/92)) ([6aec576](https://github.com/tmux-contrib/tmux-pomodoro/commit/6aec5761bf181dc565c6a6ab11d2cf4784420838))
+
+
+### Bug Fixes
+
+* **ci:** merge with the App token so main gets its CI run ([#94](https://github.com/tmux-contrib/tmux-pomodoro/issues/94)) ([369e23b](https://github.com/tmux-contrib/tmux-pomodoro/commit/369e23bf75ac661d99fb7b448c1622fb548147d6))
+
 ## [0.7.2](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.7.1...v0.7.2) (2026-10-30)
 
 
