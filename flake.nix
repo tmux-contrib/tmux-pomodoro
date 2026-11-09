@@ -38,6 +38,8 @@
           inherit (manifest) version;
           cargoLock.lockFile = ./Cargo.lock;
           src = pkgs.lib.cleanSource ./.;
+          # nixpkgs builds the -sys crates against the libraries of the system, since its November release: libsqlite3-sys links this one
+          buildInputs = [ pkgs.sqlite ];
           doCheck = false;
           meta = with pkgs.lib; {
             inherit (manifest) description;
