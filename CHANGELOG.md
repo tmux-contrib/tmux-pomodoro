@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.8.0...v0.8.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* **nix:** the package has sqlite in its build, as nixpkgs links the system one since its November release ([2756c27](https://github.com/tmux-contrib/tmux-pomodoro/commit/2756c277dfb2c9288df5fc788aeafe86680e9043))
+
 ## [0.8.0](https://github.com/tmux-contrib/tmux-pomodoro/compare/v0.7.2...v0.8.0) (2026-11-07)
 
 
